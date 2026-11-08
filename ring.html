@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>词库 · 去掉横条，换成圆圈进度</title>
+<style>
+  :root{
+    --bg:#FFF8F0;--ink:#2A1F1A;--ink-2:#7C6A60;--ink-3:#B3A298;
+    --orange:#FF7A45;--orange-deep:#E8590C;--orange-soft:#FFF1E8;
+    --mint:#1FBFA4;--mint-deep:#0E9C86;--mint-soft:#E9FBF6;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);
+    background:radial-gradient(900px 600px at 8% 0%,#FFE3D2 0%,transparent 55%),
+      radial-gradient(900px 700px at 96% 100%,#DDF7EF 0%,transparent 55%),var(--bg);
+    min-height:100dvh;padding:30px 20px 60px}
+  h1,h2,h3,p{margin:0}
+  button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit}
+
+  .head{max-width:860px;margin:0 auto 22px;text-align:center}
+  .head .kick{font-size:10px;font-weight:900;letter-spacing:1.6px;color:var(--orange-deep)}
+  .head h1{font-size:23px;letter-spacing:-.6px;margin:8px 0 8px}
+  .head p{font-size:12.5px;line-height:1.75;color:var(--ink-2)}
+  .head p b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,394px);gap:26px 24px;justify-content:center;max-width:860px;margin:0 auto;align-items:start}
+  .item{width:394px}
+  .cap{margin-bottom:10px;padding-left:2px}
+  .cap b{font-size:12.5px;font-weight:900}
+  .cap i{font-style:normal;font-size:9px;font-weight:900;color:#fff;background:var(--orange);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:1px}
+  .cap i.g{background:linear-gradient(180deg,#2BD0B4,#12A78F)}
+  .cap span{display:block;font-size:10.5px;color:var(--ink-2);margin-top:5px;line-height:1.6}
+
+  .app{position:relative;width:394px;border-radius:26px;padding:14px;
+    background:#FFF8F0;border:1px solid rgba(122,86,62,.08);
+    box-shadow:0 18px 40px rgba(150,110,80,.14);overflow:hidden}
+  .app::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px 220px at 20% 0%,#FFE9D8 0%,transparent 70%),
+      radial-gradient(380px 220px at 100% 100%,#E4FBF3 0%,transparent 70%)}
+
+  .nav{position:relative;display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
+  .nav h2{font-size:19px;font-weight:900;letter-spacing:-.5px}
+  .nav .r{display:flex;align-items:center;gap:8px}
+  .chip{font-size:9.5px;font-weight:900;color:var(--orange-deep);background:#fff;border:1px solid #F3E2D4;
+    border-radius:999px;padding:5px 9px;white-space:nowrap}
+  .icon-btn{width:28px;height:28px;border-radius:9px;background:#fff;display:grid;place-items:center;
+    box-shadow:0 3px 8px rgba(160,120,90,.12);font-size:13px}
+
+  .card{position:relative;background:#fff;border-radius:18px;padding:14px;
+    box-shadow:0 8px 20px rgba(180,140,100,.10)}
+  .cover{border-radius:8px;flex:none;overflow:hidden;box-shadow:0 8px 16px rgba(150,95,45,.24)}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .bar{height:6px;border-radius:999px;background:#F4EDE5;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFB07A,#FF6A2B)}
+
+  .book{display:flex;gap:12px;align-items:center}
+  .book .cover{width:54px;height:74px}
+  .book .info{flex:1;min-width:0}
+  .book h3{font-size:15px;font-weight:900;letter-spacing:-.3px}
+  .book .meta{font-size:9.5px;font-weight:800;color:var(--ink-3);margin-top:4px;white-space:nowrap}
+  .book .meta b{color:var(--ink)}
+  .book .bar{margin-top:9px}
+  .book .pct{font-size:9px;font-weight:900;color:var(--orange-deep);margin-top:5px}
+
+  .due{position:relative;display:flex;align-items:center;gap:10px;margin-top:9px;border-radius:16px;
+    padding:11px 13px;background:linear-gradient(135deg,#EFFCF8,#DDF7EF);border:1px solid #C9F0E6}
+  .due .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);flex:none;box-shadow:0 0 0 4px rgba(31,191,164,.14)}
+  .due .t{flex:1;min-width:0}
+  .due .t b{display:block;font-size:10.5px;font-weight:900;color:#0B7F6D}
+  .due .t span{display:block;font-size:9px;font-weight:800;color:#51A497;margin-top:2px}
+  .due .go{font-size:9.5px;font-weight:900;color:#fff;background:linear-gradient(180deg,#2BD0B4,#12A78F);
+    border-radius:999px;padding:6px 10px;white-space:nowrap;box-shadow:0 4px 10px rgba(20,160,140,.22)}
+
+  .sec{position:relative;display:flex;align-items:baseline;justify-content:space-between;margin:15px 4px 8px}
+  .sec h3{font-size:12.5px;font-weight:900;letter-spacing:-.2px}
+  .sec h3 span{font-weight:800;color:var(--ink-3);font-size:9.5px;margin-left:4px}
+  .sec .entry{font-size:9.5px;font-weight:900;color:var(--orange-deep)}
+
+  .units{display:flex;flex-direction:column;gap:8px}
+  .unit{position:relative;display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;
+    padding:11px 12px;box-shadow:0 5px 14px rgba(180,140,100,.07);border:1px solid rgba(122,86,62,.05)}
+  .u-left{flex:1;min-width:0}
+  .u-top{display:flex;align-items:center;gap:8px}
+  .u-no{width:26px;height:26px;border-radius:9px;flex:none;display:grid;place-items:center;
+    font-size:11px;font-weight:900;color:var(--orange-deep);background:var(--orange-soft)}
+  .u-no.done{color:var(--mint-deep);background:var(--mint-soft)}
+  .u-name{flex:1;min-width:0;display:flex;align-items:baseline;gap:5px}
+  .u-name b{font-size:12px;font-weight:900;white-space:nowrap}
+  .u-name span{font-size:8.5px;font-weight:800;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .u-bar{height:4px;border-radius:999px;background:#F4EDE5;overflow:hidden;margin-top:8px}
+  .u-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFC49A,#FF7A45)}
+  .u-bar i.full{background:linear-gradient(90deg,#5FE0C6,#1FBFA4)}
+
+  .u-data{display:flex;align-items:baseline;gap:9px;margin-top:5px;font-size:8.5px;font-weight:800;color:#B3A298;
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  .u-data b{color:var(--ink-2);font-weight:900}
+  .u-data .m b{color:var(--mint-deep)}
+  .u-data .o b{color:var(--orange-deep)}
+
+  /* 圆环 */
+  .ring{position:relative;width:38px;height:38px;border-radius:50%;flex:none;
+    background:conic-gradient(var(--c) calc(var(--p) * 1%), #F4EDE5 0)}
+  .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+  .ring span{position:absolute;inset:0;display:grid;place-items:center;z-index:2;
+    font-size:7.5px;font-weight:900;color:#8A6A55;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+  .ring.full span{color:var(--mint-deep)}
+
+  .u-acts{flex:none;display:flex;flex-direction:row;gap:5px}
+  .u-acts button{height:28px;padding:0 9px;border-radius:9px;font-size:9px;font-weight:900;white-space:nowrap;
+    display:flex;align-items:center;justify-content:center}
+  .b-learn{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;box-shadow:0 3px 8px rgba(220,90,30,.20)}
+  .b-review{background:#fff;color:var(--orange-deep);border:1.2px solid #FFD2BC}
+  .b-review.main{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;border:0;box-shadow:0 3px 8px rgba(220,90,30,.20)}
+  .b-text{background:#fff;color:var(--mint-deep);border:1.2px solid #BFEDE2}
+  .u-acts button.off{color:#C9BDB3;border-color:#EFE5DB;background:#FBF7F3;box-shadow:none}
+
+  .tip{position:relative;font-size:9px;font-weight:800;color:#A9978B;line-height:1.6;margin:10px 4px 0}
+
+  @media (max-width:860px){ .grid{grid-template-columns:394px} }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kick">词库 TAB · 单元行</div>
+  <h1>去掉横条，把进度做成圆圈</h1>
+  <p>左边那版是现在的横条；右边把横条删了，单元前的数字块换成<b>圆圈进度</b>，百分比直接写在圈里。</p>
+</div>
+
+<div class="grid">
+
+  <div class="item">
+    <div class="cap"><b>A · 横条 + 单元号</b><i>当前</i><span>单元号方块 + 名称 + 数据 + 横条，进度条占掉一行高度。</span></div>
+    <div class="app">
+      <div class="nav"><h2>词库</h2><div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div></div>
+      <div class="card book">
+        <div class="cover"><img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E"></div>
+        <div class="info">
+          <h3>五年级上册</h3>
+          <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+          <div class="bar"><i style="width:42%"></i></div>
+          <div class="pct">已学 50 / 118 · 已掌握 18</div>
+        </div>
+      </div>
+      <div class="due">
+        <span class="dot"></span>
+        <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
+        <button class="go">去复习</button>
+      </div>
+      <div class="sec"><h3>单元<span>6 个</span></h3><span class="entry">学习记录 ›</span></div>
+      <div class="units" data-list="a"></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="cap"><b>B · 圆圈进度</b><i class="g">新</i><span>删掉横条，圆圈里写百分比；单元名、数据、按钮都不动，整行矮一截。</span></div>
+    <div class="app">
+      <div class="nav"><h2>词库</h2><div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div></div>
+      <div class="card book">
+        <div class="cover"><img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E"></div>
+        <div class="info">
+          <h3>五年级上册</h3>
+          <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+          <div class="bar"><i style="width:42%"></i></div>
+          <div class="pct">已学 50 / 118 · 已掌握 18</div>
+        </div>
+      </div>
+      <div class="due">
+        <span class="dot"></span>
+        <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
+        <button class="go">去复习</button>
+      </div>
+      <div class="sec"><h3>单元<span>6 个</span></h3><span class="entry">学习记录 ›</span></div>
+      <div class="units" data-list="b"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const UNITS = [
+    { n:1, title:"What's he like?",      total:12, learned:12, mastered:8 },
+    { n:2, title:"My week",              total:19, learned:14, mastered:6 },
+    { n:3, title:"What would you like?", total:21, learned:12, mastered:4 },
+    { n:4, title:"What can you do?",     total:18, learned:8,  mastered:0 },
+    { n:5, title:"There is a big bed",   total:24, learned:4,  mastered:0 },
+    { n:6, title:"In a nature park",     total:24, learned:0,  mastered:0 }
+  ];
+
+  function acts(u, full){
+    return `
+      ${full ? `<button class="b-learn off">已学完</button>` : `<button class="b-learn">学词</button>`}
+      ${u.learned > 0
+        ? `<button class="b-review ${full?'main':''}">复习词</button>`
+        : `<button class="b-review off">复习词</button>`}
+      <button class="b-text">学课文</button>`;
+  }
+
+  function rowA(u){
+    const left = u.total - u.learned, full = left === 0, pct = Math.round(u.learned/u.total*100);
+    return `
+      <div class="unit">
+        <div class="u-left">
+          <div class="u-top">
+            <div class="u-no ${full?'done':''}">${u.n}</div>
+            <div class="u-name"><b>Unit ${u.n}</b><span>${u.title}</span></div>
+          </div>
+          <div class="u-data">
+            <span>已学 <b>${u.learned}/${u.total}</b></span>
+            <span class="m">掌握 <b>${u.mastered}</b></span>
+            <span class="o">未学 <b>${left}</b></span>
+          </div>
+          <div class="u-bar"><i class="${full?'full':''}" style="width:${pct}%"></i></div>
+        </div>
+        <div class="u-acts">${acts(u, full)}</div>
+      </div>`;
+  }
+
+  function rowB(u){
+    const left = u.total - u.learned, full = left === 0, pct = Math.round(u.learned/u.total*100);
+    const color = full ? '#1FBFA4' : (pct === 0 ? '#E9DED4' : '#FF7A45');
+    return `
+      <div class="unit">
+        <div class="ring ${full?'full':''}" style="--p:${pct};--c:${color}"><span>${pct}%</span></div>
+        <div class="u-left">
+          <div class="u-top">
+            <div class="u-name"><b>Unit ${u.n}</b><span>${u.title}</span></div>
+          </div>
+          <div class="u-data">
+            <span>已学 <b>${u.learned}/${u.total}</b></span>
+            <span class="m">掌握 <b>${u.mastered}</b></span>
+            <span class="o">未学 <b>${left}</b></span>
+          </div>
+        </div>
+        <div class="u-acts">${acts(u, full)}</div>
+      </div>`;
+  }
+
+  document.querySelector('[data-list="a"]').innerHTML = UNITS.map(rowA).join('');
+  document.querySelector('[data-list="b"]').innerHTML = UNITS.map(rowB).join('');
+</script>
+</body>
+</html>
