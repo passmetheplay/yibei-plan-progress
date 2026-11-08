@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<title>计划学习 · 进度条方案（4 状态 + 可交互原型）</title>
+<style>
+  :root{
+    --bg:#FFF8F0;--ink:#2A1F1A;--ink-2:#7C6A60;--ink-3:#B3A298;
+    --orange:#FF7A45;--orange-deep:#E8590C;--mint:#1FBFA4;--mint-deep:#0E9C86;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:var(--font);color:var(--ink);
+    background:radial-gradient(900px 600px at 8% 0%,#FFE3D2 0%,transparent 55%),
+      radial-gradient(900px 700px at 96% 100%,#DDF7EF 0%,transparent 55%),var(--bg);
+    min-height:100vh;padding:44px 22px 80px}
+  h1,h2,h3,p,margin{0}
+  .wrap{max-width:1180px;margin:0 auto}
+  .kick{font-size:11px;font-weight:900;letter-spacing:2px;color:var(--orange-deep)}
+  h1{font-size:30px;letter-spacing:-.8px;margin:10px 0 10px}
+  .lead{font-size:13px;line-height:1.8;color:var(--ink-2);max-width:760px}
+  .lead b{color:var(--ink)}
+
+  .sec{margin-top:46px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .sec-head h2{font-size:19px;letter-spacing:-.4px}
+  .sec-head span{font-size:12px;color:var(--ink-3);font-weight:700}
+  .badge{font-size:10px;font-weight:900;color:#fff;background:linear-gradient(180deg,#FF8A4C,#F2601F);
+    border-radius:999px;padding:4px 10px;box-shadow:0 4px 10px rgba(220,90,30,.25)}
+  .badge.g{background:linear-gradient(180deg,#2BD0B4,#12A78F);box-shadow:0 4px 10px rgba(20,160,140,.25)}
+
+  .shots{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .shot{background:#fff;border-radius:18px;padding:10px;box-shadow:0 10px 24px rgba(180,140,100,.10)}
+  .shot img{width:100%;display:block;border-radius:12px}
+  .shot .t{font-size:11.5px;font-weight:900;margin:9px 2px 2px}
+  .shot .d{font-size:10.5px;color:var(--ink-2);line-height:1.6;margin:0 2px 2px}
+
+  .links{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .link-card{display:block;text-decoration:none;color:inherit;background:#fff;border-radius:18px;padding:18px 18px 16px;
+    box-shadow:0 10px 24px rgba(180,140,100,.10);transition:transform .18s ease,box-shadow .18s ease}
+  .link-card:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(180,140,100,.16)}
+  .link-card b{display:block;font-size:14px;letter-spacing:-.2px}
+  .link-card p{font-size:11.5px;color:var(--ink-2);line-height:1.7;margin-top:7px}
+  .link-card i{font-style:normal;display:inline-block;margin-top:12px;font-size:11px;font-weight:900;color:var(--orange-deep)}
+
+  .rules{background:#fff;border-radius:20px;padding:22px 24px;box-shadow:0 10px 24px rgba(180,140,100,.10)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;font-size:12px;padding:9px 10px;border-bottom:1px solid #F3EAE1;vertical-align:top}
+  th{font-size:10px;letter-spacing:.08em;color:#A9978B;font-weight:900;border-bottom:1px solid #EADFD4}
+  td:first-child{font-weight:900;width:210px}
+  .ok{color:var(--mint-deep);font-weight:900}
+  .no{color:#A9978B;font-weight:900}
+  .foot{font-size:11px;color:#8A7A6E;line-height:1.8;margin-top:12px}
+
+  footer{margin-top:56px;font-size:11px;color:var(--ink-3);line-height:1.9}
+
+  @media (max-width:980px){
+    .shots{grid-template-columns:repeat(2,1fr)}
+    .links{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    body{padding:28px 14px 56px}
+    .shots{grid-template-columns:1fr}
+    h1{font-size:24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kick">计划学习 · 头部进度条</div>
+  <h1>冲刺进度条：4 个状态 + 可交互原型</h1>
+  <p class="lead">
+    两套卡片布局，各自 3 张静态图 + 1 条冲刺动图。条上的数字从 <b>50 词</b> 冲到 <b>118 词</b>，
+    用同一条速度曲线（起步 → 加速 → 全速 → 刹车 → 压线），压线才撒花、盖章、把日期换成「已完成」。
+  </p>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>A · 条在书行下方、全宽</h2><span>统计在书行底部 · 条横穿整张卡</span><span class="badge">基础版</span>
+    </div>
+    <div class="shots">
+      <div class="shot"><img src="plan-c-none.png" alt="0 已学"><div class="t">① 0 已学</div><div class="d">空条，火箭停在起点，0 / 0 / 0，预计 12/02</div></div>
+      <div class="shot"><img src="plan-c-half.png" alt="部分已学"><div class="t">② 部分已学</div><div class="d">条头 50 词、42%，50 / 32 / 18，预计 11/28</div></div>
+      <div class="shot"><img src="plan-c-done.png" alt="全部学完"><div class="t">③ 全部学完</div><div class="d">满条、旗子发光、盖章，118 / 104 / 36，已完成</div></div>
+      <div class="shot"><img src="plan-c-sprint.gif" alt="冲刺动效"><div class="t">④ 冲刺动效</div><div class="d">50 → 118 词，压线撒花 + 盖章 + 日期变已完成</div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>B · 条缩进教材右栏</h2><span>条与书名同左边界 · 统计下移全宽</span><span class="badge g">缩进版</span>
+    </div>
+    <div class="shots">
+      <div class="shot"><img src="plan-c-indent-none.png" alt="0 已学"><div class="t">① 0 已学</div><div class="d">条在书名这一栏里，空条 + 火箭在起点</div></div>
+      <div class="shot"><img src="plan-c-indent-half.png" alt="部分已学"><div class="t">② 部分已学</div><div class="d">条头 50 词、42%，三项统计在分隔线下方</div></div>
+      <div class="shot"><img src="plan-c-indent-done.png" alt="全部学完"><div class="t">③ 全部学完</div><div class="d">满条、旗子发光、盖章，日期换「已完成」</div></div>
+      <div class="shot"><img src="plan-c-indent-sprint.gif" alt="冲刺动效"><div class="t">④ 冲刺动效</div><div class="d">同样的冲刺与庆祝，只是条更短更贴近书名</div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>可交互原型</h2><span>点开可以看真实动效，点卡片可重播</span></div>
+    <div class="links">
+      <a class="link-card" href="plan-card-sprint-bars.html">
+        <b>进度条动效 · 3 版</b>
+        <p>A 领跑气泡 / B 条内数字 / C 火箭冲刺，同一套冲刺曲线，可对比</p>
+        <i>打开 ›</i>
+      </a>
+      <a class="link-card" href="plan-card-bar-indent.html">
+        <b>缩进教材 · 3 版</b>
+        <p>A 只缩左端 / B 条进右栏 / C 进右栏 + 统计下移</p>
+        <i>打开 ›</i>
+      </a>
+      <a class="link-card" href="plan-card-swap-variants.html">
+        <b>条与统计换位 · 4 版</b>
+        <p>现状 / 三等分 / 胶囊 / 一行小字，看信息密度差异</p>
+        <i>打开 ›</i>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>动效播放约定</h2><span>按「日期 + 进度」指纹去重，避免每次都撒花</span></div>
+    <div class="rules">
+      <table>
+        <tr><th>场景</th><th>播不播</th><th>说明</th></tr>
+        <tr><td>当天首次进入「今日」</td><td><span class="ok">播 1 次</span></td><td>从上次进度冲到当前进度，完整 2.4 秒</td></tr>
+        <tr><td>同一天再进，进度没变</td><td><span class="no">不播</span></td><td>直接停在终态</td></tr>
+        <tr><td>当天又学了词再回来</td><td><span class="ok">补播 1 次</span></td><td>只冲新增那一段，≤0.8 秒，不撒花</td></tr>
+        <tr><td>从词库 / 检测 / 二级页返回</td><td><span class="no">不播</span></td><td>页面切换不重播</td></tr>
+        <tr><td>首次达到 100%</td><td><span class="ok">播 1 次</span></td><td>撒花 + 盖章，之后永远是完成静态态</td></tr>
+        <tr><td>次日进入</td><td><span class="ok">按进度判断</span></td><td>进度有涨才播，当天最多 1 次完整冲刺</td></tr>
+        <tr><td>系统开启「减少动态效果」</td><td><span class="no">不播</span></td><td>直接终态，只留 300ms 淡入</td></tr>
+      </table>
+      <div class="foot">去重键：<b>planMotion = 日期-已学词数-总词数</b>，存本地；命中则不播。任何情况下同一天最多 1 次完整冲刺 + 1 次完成庆祝。</div>
+    </div>
+  </section>
+
+  <footer>
+    入口「查看进度」固定在书行右上，与今日页其它模块的入口同一位置。<br>
+    静态图为 2 倍图，动图为 420 宽、30 帧、约 3.2 秒循环。
+  </footer>
+
+</div>
+</body>
+</html>
