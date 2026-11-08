@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>词库 Tab · 单元选词学习 / 单元复习 / 学习记录</title>
+<style>
+  :root{
+    --bg:#FFF8F0;--ink:#2A1F1A;--ink-2:#7C6A60;--ink-3:#B3A298;
+    --orange:#FF7A45;--orange-deep:#E8590C;--orange-soft:#FFF1E8;
+    --mint:#1FBFA4;--mint-deep:#0E9C86;--mint-soft:#E9FBF6;
+    --line:#F4EBE2;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);
+    background:radial-gradient(900px 600px at 8% 0%,#FFE3D2 0%,transparent 55%),
+      radial-gradient(900px 700px at 96% 100%,#DDF7EF 0%,transparent 55%),var(--bg);
+    min-height:100dvh;padding:30px 20px 70px}
+  h1,h2,h3,p{margin:0}
+  button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit}
+
+  .head{max-width:860px;margin:0 auto 24px}
+  .head .kick{font-size:10px;font-weight:900;letter-spacing:1.6px;color:var(--orange-deep)}
+  .head h1{font-size:24px;letter-spacing:-.6px;margin:8px 0 8px}
+  .head p{font-size:12.5px;line-height:1.75;color:var(--ink-2);max-width:780px}
+  .head p b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,394px);gap:28px 24px;justify-content:center;max-width:900px;margin:0 auto;align-items:start}
+  .item{width:394px}
+  .cap{margin-bottom:10px;padding-left:2px}
+  .cap b{font-size:12.5px;font-weight:900;letter-spacing:-.2px}
+  .cap span{display:block;font-size:10.5px;color:var(--ink-2);margin-top:4px;line-height:1.6}
+
+  /* ---------- 手机屏 ---------- */
+  .app{position:relative;width:394px;border-radius:26px;padding:14px 14px 12px;
+    background:#FFF8F0;border:1px solid rgba(122,86,62,.08);
+    box-shadow:0 18px 40px rgba(150,110,80,.14);overflow:hidden}
+  .app::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px 220px at 20% 0%,#FFE9D8 0%,transparent 70%),
+      radial-gradient(380px 220px at 100% 100%,#E4FBF3 0%,transparent 70%)}
+
+  .nav{position:relative;display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
+  .nav h2{font-size:19px;font-weight:900;letter-spacing:-.5px}
+  .nav.mid h2{flex:1;text-align:center;font-size:15px}
+  .nav .r{display:flex;align-items:center;gap:8px}
+  .chip{font-size:9.5px;font-weight:900;color:var(--orange-deep);background:#fff;border:1px solid #F3E2D4;
+    border-radius:999px;padding:5px 9px;white-space:nowrap}
+  .icon-btn{width:28px;height:28px;border-radius:9px;background:#fff;display:grid;place-items:center;
+    box-shadow:0 3px 8px rgba(160,120,90,.12);font-size:13px}
+
+  .card{position:relative;background:#fff;border-radius:18px;padding:14px;
+    box-shadow:0 8px 20px rgba(180,140,100,.10)}
+
+  /* 教材卡 */
+  .book{display:flex;gap:12px;align-items:center}
+  .cover{width:54px;height:74px;border-radius:8px;flex:none;overflow:hidden;
+    box-shadow:0 8px 16px rgba(150,95,45,.24)}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .book .info{flex:1;min-width:0}
+  .book h3{font-size:15px;font-weight:900;letter-spacing:-.3px}
+  .book .meta{font-size:9.5px;font-weight:800;color:var(--ink-3);margin-top:4px;white-space:nowrap}
+  .book .meta b{color:var(--ink)}
+  .book .bar{height:6px;border-radius:999px;background:#F4EDE5;margin-top:9px;overflow:hidden}
+  .book .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFB07A,#FF6A2B)}
+  .book .pct{font-size:9px;font-weight:900;color:var(--orange-deep);margin-top:5px}
+
+  /* 段落标题 */
+  .sec{position:relative;display:flex;align-items:baseline;justify-content:space-between;margin:16px 4px 8px}
+  .sec h3{font-size:12.5px;font-weight:900;letter-spacing:-.2px}
+  .sec .entry{font-size:9.5px;font-weight:900;color:var(--orange-deep)}
+
+  /* 单元列表 */
+  .units{display:flex;flex-direction:column;gap:8px}
+  .unit{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 12px;
+    box-shadow:0 5px 14px rgba(180,140,100,.07);border:1px solid rgba(122,86,62,.05)}
+  .u-no{width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;
+    font-size:12px;font-weight:900;color:var(--orange-deep);background:var(--orange-soft)}
+  .u-no.done{color:#0E9C86;background:var(--mint-soft)}
+  .u-main{flex:1;min-width:0}
+  .u-line{display:flex;align-items:baseline;gap:6px}
+  .u-line b{font-size:12.5px;font-weight:900}
+  .u-line span{font-size:9px;font-weight:800;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .u-sub{font-size:9px;font-weight:800;color:var(--ink-3);margin-top:3px;font-variant-numeric:tabular-nums}
+  .u-sub b{color:var(--ink-2)}
+  .u-bar{height:4px;border-radius:999px;background:#F4EDE5;margin-top:6px;overflow:hidden}
+  .u-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFC49A,#FF7A45)}
+  .u-bar i.full{background:linear-gradient(90deg,#5FE0C6,#1FBFA4)}
+  .u-acts{display:flex;gap:6px;flex:none}
+  .mini{font-size:9px;font-weight:900;border-radius:999px;padding:6px 9px;white-space:nowrap;
+    background:#fff;color:var(--orange-deep);border:1.2px solid #FFD2BC}
+  .mini.solid{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;border:0;
+    box-shadow:0 4px 10px rgba(220,90,30,.22)}
+  .mini.mint{color:var(--mint-deep);border-color:#BFEDE2}
+  .mini.off{color:#C9BDB3;border-color:#EFE5DB;background:#fff}
+
+  /* 单元卡片式（B） */
+  .ugrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .ucard{background:#fff;border-radius:15px;padding:11px 12px;box-shadow:0 5px 14px rgba(180,140,100,.07);
+    border:1px solid rgba(122,86,62,.05);position:relative;overflow:hidden}
+  .ucard .top{display:flex;align-items:center;justify-content:space-between}
+  .ucard .no{font-size:11px;font-weight:900;color:var(--orange-deep)}
+  .ucard .p{font-size:9px;font-weight:900;color:var(--ink-3)}
+  .ucard h4{font-size:11px;font-weight:900;margin:5px 0 2px;letter-spacing:-.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ucard .n{font-size:9px;font-weight:800;color:var(--ink-3)}
+  .ucard .ring{position:absolute;right:10px;bottom:8px;width:26px;height:26px;border-radius:50%}
+
+  /* 词表 */
+  .subtabs{position:relative;display:flex;gap:16px;padding:2px 4px 0;overflow:hidden}
+  .subtabs span{font-size:11px;font-weight:900;color:#B9AA9E;padding-bottom:7px;position:relative;white-space:nowrap}
+  .subtabs span.on{color:var(--ink)}
+  .subtabs span.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:3px;background:var(--orange)}
+
+  .seg{position:relative;display:flex;background:#F6EDE5;border-radius:999px;padding:3px;margin:10px 0 0}
+  .seg button{flex:1;font-size:10.5px;font-weight:900;color:#A9978B;padding:7px 0;border-radius:999px;transition:.2s}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(170,130,100,.15)}
+
+  .filter{position:relative;display:flex;align-items:center;gap:8px;margin:12px 2px 8px}
+  .filter .cnt{font-size:10px;font-weight:900;color:var(--ink-2)}
+  .filter .pill{font-size:9.5px;font-weight:900;color:var(--ink-2);background:#fff;border:1px solid #F0E3D7;
+    border-radius:999px;padding:5px 9px;display:flex;align-items:center;gap:4px}
+  .filter .all{font-size:9.5px;font-weight:900;color:var(--orange-deep);margin-left:auto}
+
+  .listwrap{position:relative}
+  .listwrap::after{content:"";position:absolute;left:0;right:0;bottom:0;height:18px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,0),#fff)}
+  .list{position:relative;display:flex;flex-direction:column;max-height:296px;overflow:auto;scrollbar-width:none}
+  .list::-webkit-scrollbar{display:none}
+  .w{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+  .w:last-child{border-bottom:0}
+  .w .tick{width:17px;height:17px;border-radius:50%;border:1.5px solid #E3D5C8;flex:none;display:grid;place-items:center;
+    color:transparent;font-size:9px;font-weight:900;transition:.15s}
+  .w.sel .tick{background:var(--orange);border-color:var(--orange);color:#fff}
+  .w .word{flex:none;width:118px;font-size:15px;font-weight:900;letter-spacing:-.4px}
+  .w .word em{font-style:normal;color:#12B48A}
+  .w .mean{flex:1;min-width:0;font-size:9.5px;line-height:1.55;color:var(--ink-2);font-weight:700}
+  .w .mean i{font-style:normal;color:#B9AA9E;font-weight:800;margin-right:3px}
+  .w .state{flex:none;font-size:8px;font-weight:900;border-radius:999px;padding:3px 6px}
+  .w .state.new{color:#B9AA9E;background:#F7F1EA}
+  .w .state.learned{color:var(--mint-deep);background:var(--mint-soft)}
+  .w .state.due{color:var(--orange-deep);background:var(--orange-soft)}
+  .w.sel{background:#FFF7F1;border-radius:10px}
+  .w.dim{opacity:.55}
+
+  .cta{position:relative;display:flex;align-items:center;gap:10px;margin-top:12px}
+  .cta .pill{font-size:10px;font-weight:900;color:var(--orange-deep);background:var(--orange-soft);
+    border-radius:999px;padding:8px 12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .cta .go{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;border-radius:999px;
+    font-size:12.5px;font-weight:900;padding:12px 0;box-shadow:0 8px 18px rgba(220,90,30,.26)}
+  .cta .go.mint{background:linear-gradient(180deg,#2BD0B4,#12A78F);box-shadow:0 8px 18px rgba(20,160,140,.24)}
+  .cta .go small{font-size:9.5px;font-weight:900;opacity:.85}
+
+  .tip{position:relative;font-size:9px;font-weight:800;color:#A9978B;line-height:1.6;margin:8px 4px 0}
+
+  /* 记录 */
+  .sum{display:flex;gap:8px;margin-top:2px}
+  .sum div{flex:1;background:#fff;border-radius:13px;padding:9px 10px;box-shadow:0 5px 14px rgba(180,140,100,.07)}
+  .sum b{display:block;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
+  .sum span{display:block;font-size:8.5px;font-weight:800;color:var(--ink-3);margin-top:2px}
+
+  .rec{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+  .rec:last-child{border-bottom:0}
+  .rec .dot{width:26px;height:26px;border-radius:9px;flex:none;display:grid;place-items:center;font-size:10px;font-weight:900}
+  .rec .dot.n{color:var(--orange-deep);background:var(--orange-soft)}
+  .rec .dot.r{color:var(--mint-deep);background:var(--mint-soft)}
+  .rec .b{flex:1;min-width:0}
+  .rec .t{font-size:11px;font-weight:900}
+  .rec .t span{font-weight:800;color:var(--ink-3);font-size:9px;margin-left:5px}
+  .rec .s{font-size:9px;font-weight:800;color:var(--ink-3);margin-top:2px}
+  .rec .time{font-size:9px;font-weight:900;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+  .day{font-size:9px;font-weight:900;color:#B9AA9E;margin:14px 4px 2px;letter-spacing:.4px}
+
+  @media (max-width:860px){ .grid{grid-template-columns:394px} }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kick">词库 TAB · 内容规划</div>
+  <h1>按单元学新词、按单元复习、随时看记录</h1>
+  <p>词库以<b>教材单元</b>为单位：每个单元都能「学新词」或「复习」，进到单元里还能<b>挑到具体某几个词</b>。
+    复习只从<b>本单元已学</b>的词里按艾宾浩斯排，从没学过的一个都不出现。右下两屏可以点着玩。</p>
+</div>
+
+<div class="grid">
+
+  <!-- ============ 1. 词库首页 A ============ -->
+  <div class="item">
+    <div class="cap"><b>① 词库首页 · 单元列表</b><span>一屏看完 6 个单元的「已学 / 未学 / 该复习」，单元上直接给两个动作</span></div>
+    <div class="app">
+      <div class="nav">
+        <h2>词库</h2>
+        <div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div>
+      </div>
+
+      <div class="card book">
+        <div class="cover"><img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E"></div>
+        <div class="info">
+          <h3>五年级上册</h3>
+          <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+          <div class="bar"><i style="width:42%"></i></div>
+          <div class="pct">已学 50 / 118 · 已掌握 18</div>
+        </div>
+      </div>
+
+      <div class="sec"><h3>单元</h3><span class="entry">学习记录 ›</span></div>
+
+      <div class="units" id="units"></div>
+
+      <div class="tip">单元学完 12/12 后「学新词」变灰，但复习入口一直保留。</div>
+    </div>
+  </div>
+
+  <!-- ============ 2. 词库首页 B ============ -->
+  <div class="item">
+    <div class="cap"><b>② 词库首页 · 单元卡片</b><span>两种动作收进单元内页，首页只负责「选单元 + 看进度」，更适合单元多的教材</span></div>
+    <div class="app">
+      <div class="nav">
+        <h2>词库</h2>
+        <div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div>
+      </div>
+
+      <div class="card book">
+        <div class="cover"><img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E"></div>
+        <div class="info">
+          <h3>五年级上册</h3>
+          <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+          <div class="bar"><i style="width:42%"></i></div>
+          <div class="pct">已学 50 / 118 · 已掌握 18</div>
+        </div>
+      </div>
+
+      <div class="sec"><h3>单元</h3><span class="entry">学习记录 ›</span></div>
+
+      <div class="ugrid" id="ugrid"></div>
+
+      <div class="tip">点卡片进单元，再选「学新词 / 复习」；卡片右下角的圆环是已学占比。</div>
+    </div>
+  </div>
+
+  <!-- ============ 3. 单元内页 ============ -->
+  <div class="item">
+    <div class="cap"><b>③ 单元内页 · 学新词 / 复习</b><span>顶部切单元，中间切模式；学新词可勾词，复习只列已学词（点词可以试）</span></div>
+    <div class="app" id="unitApp">
+      <div class="nav mid">
+        <div class="r"><div class="icon-btn">‹</div></div>
+        <h2>五年级上册</h2>
+        <div class="r"><span class="chip" id="recChip">记录 ›</span></div>
+      </div>
+
+      <div class="subtabs" id="subtabs">
+        <span>Unit 1</span><span class="on">Unit 2</span><span>Unit 3</span><span>Unit 4</span><span>Unit 5</span><span>Unit 6</span>
+      </div>
+
+      <div class="seg" id="seg">
+        <button class="on" data-mode="learn">学新词</button>
+        <button data-mode="review">复习</button>
+      </div>
+
+      <div class="filter">
+        <span class="cnt" id="cnt">19 词 · 未学 5</span>
+        <button class="pill">全部 ⌄</button>
+        <button class="all" id="all">全选</button>
+      </div>
+
+      <div class="listwrap"><div class="list" id="list"></div></div>
+
+      <div class="cta">
+        <div class="pill" id="selPill">已选 0 词</div>
+        <button class="go" id="go">开始学习 <small>0</small></button>
+      </div>
+
+      <div class="tip" id="tip">勾选要学的词，也可以一个不选直接按单元从头学。</div>
+    </div>
+  </div>
+
+  <!-- ============ 4. 学习记录 ============ -->
+  <div class="item">
+    <div class="cap"><b>④ 学习记录</b><span>从词库首页的「学习记录 ›」进入；按天分组，新学与复习分开记</span></div>
+    <div class="app">
+      <div class="nav mid">
+        <div class="r"><div class="icon-btn">‹</div></div>
+        <h2>学习记录</h2>
+        <div class="r"><span class="chip">筛选</span></div>
+      </div>
+
+      <div class="sum">
+        <div><b>28</b><span>本周新学</span></div>
+        <div><b>64</b><span>本周复习</span></div>
+        <div><b>5 天</b><span>连续学习</span></div>
+      </div>
+
+      <div class="day">今天 · 11/09</div>
+      <div class="card" style="padding:6px 12px">
+        <div class="rec">
+          <div class="dot n">学</div>
+          <div class="b"><div class="t">Unit 2 · 新学 5 词<span>正确率 92%</span></div><div class="s">Monday / Tuesday / Wednesday…</div></div>
+          <div class="time">6′12″</div>
+        </div>
+        <div class="rec">
+          <div class="dot r">复</div>
+          <div class="b"><div class="t">Unit 1 · 复习 12 词<span>到期 12</span></div><div class="s">全部完成</div></div>
+          <div class="time">4′30″</div>
+        </div>
+      </div>
+
+      <div class="day">昨天 · 11/08</div>
+      <div class="card" style="padding:6px 12px">
+        <div class="rec">
+          <div class="dot n">学</div>
+          <div class="b"><div class="t">Unit 3 · 新学 8 词<span>正确率 88%</span></div><div class="s">sandwich / salad / hamburger…</div></div>
+          <div class="time">9′05″</div>
+        </div>
+        <div class="rec">
+          <div class="dot r">复</div>
+          <div class="b"><div class="t">Unit 1 · 复习 8 词<span>到期 8</span></div><div class="s">全部完成</div></div>
+          <div class="time">3′40″</div>
+        </div>
+        <div class="rec">
+          <div class="dot r">复</div>
+          <div class="b"><div class="t">Unit 2 · 复习 6 词<span>补学 2</span></div><div class="s">全部完成</div></div>
+          <div class="time">2′58″</div>
+        </div>
+      </div>
+
+      <div class="tip">记录只记「单元 + 学了几个 + 用时 + 正确率」，点进去能看这一轮具体练了哪些词。</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ---------- 单元数据 ---------- */
+  const UNITS = [
+    { n:1, title:"What's he like?", total:12, learned:12, mastered:8 },
+    { n:2, title:"My week",           total:19, learned:14, mastered:6 },
+    { n:3, title:"What would you like?", total:21, learned:12, mastered:4 },
+    { n:4, title:"What can you do?",  total:18, learned:8,  mastered:0 },
+    { n:5, title:"There is a big bed",total:24, learned:4,  mastered:0 },
+    { n:6, title:"In a nature park",  total:24, learned:0,  mastered:0 }
+  ];
+
+  /* 列表式 */
+  document.getElementById('units').innerHTML = UNITS.map(u => {
+    const left = u.total - u.learned;
+    const full = left === 0;
+    return `
+      <div class="unit">
+        <div class="u-no ${full ? 'done' : ''}">${u.n}</div>
+        <div class="u-main">
+          <div class="u-line"><b>Unit ${u.n}</b><span>${u.title}</span></div>
+          <div class="u-sub">${u.total} 词 · 已学 <b>${u.learned}</b> · 未学 ${left}</div>
+          <div class="u-bar"><i class="${full ? 'full' : ''}" style="width:${Math.round(u.learned/u.total*100)}%"></i></div>
+        </div>
+        <div class="u-acts">
+          ${full
+            ? `<button class="mini off">已学完</button>`
+            : `<button class="mini solid">学新词</button>`}
+          ${u.learned > 0
+            ? `<button class="mini mint">复习</button>`
+            : `<button class="mini off">复习</button>`}
+        </div>
+      </div>`;
+  }).join('');
+
+  /* 卡片式 */
+  document.getElementById('ugrid').innerHTML = UNITS.map(u => {
+    const pct = Math.round(u.learned/u.total*100);
+    return `
+      <div class="ucard">
+        <div class="top"><span class="no">Unit ${u.n}</span><span class="p">${pct}%</span></div>
+        <h4>${u.title}</h4>
+        <div class="n">${u.total} 词 · 已学 ${u.learned}</div>
+        <svg class="ring" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15" fill="none" stroke="#F4EDE5" stroke-width="4"/>
+          <circle cx="18" cy="18" r="15" fill="none" stroke="${pct===100?'#1FBFA4':'#FF7A45'}"
+            stroke-width="4" stroke-linecap="round"
+            stroke-dasharray="${(pct/100*94.2).toFixed(1)} 94.2" transform="rotate(-90 18 18)"/>
+        </svg>
+      </div>`;
+  }).join('');
+
+  /* ---------- 单元内页 ---------- */
+  const WORDS = [
+    { w:'Mon<em>day</em>',   pos:'n.', mean:'星期一',           st:'learned' },
+    { w:'Tues<em>day</em>',  pos:'n.', mean:'星期二',           st:'learned' },
+    { w:'Wednes<em>day</em>',pos:'n.', mean:'星期三',           st:'learned' },
+    { w:'Thurs<em>day</em>', pos:'n.', mean:'星期四',           st:'new' },
+    { w:'Fri<em>day</em>',   pos:'n.', mean:'星期五',           st:'new' },
+    { w:'Satur<em>day</em>', pos:'n.', mean:'星期六',           st:'new' },
+    { w:'Sun<em>day</em>',   pos:'n.', mean:'星期日',           st:'new' },
+    { w:'week<em>end</em>',  pos:'n.', mean:'周末',             st:'learned' },
+    { w:'wash',              pos:'v.', mean:'洗',               st:'learned' },
+    { w:'watch',             pos:'v.', mean:'看；观看',          st:'learned' },
+    { w:'homework',          pos:'n.', mean:'家庭作业',          st:'learned' },
+    { w:'sports',            pos:'n.', mean:'体育运动',          st:'learned' }
+  ];
+  const REVIEW = [
+    { w:'Mon<em>day</em>',   pos:'n.', mean:'星期一', due:'今天到期' },
+    { w:'Tues<em>day</em>',  pos:'n.', mean:'星期二', due:'今天到期' },
+    { w:'Wednes<em>day</em>',pos:'n.', mean:'星期三', due:'今天到期' },
+    { w:'week<em>end</em>',  pos:'n.', mean:'周末',   due:'明天' },
+    { w:'wash',              pos:'v.', mean:'洗',     due:'11/12' },
+    { w:'watch',             pos:'v.', mean:'看；观看', due:'11/15' }
+  ];
+
+  const app = document.getElementById('unitApp');
+  const listEl = document.getElementById('list');
+  const selPill = document.getElementById('selPill');
+  const goBtn = document.getElementById('go');
+  const cntEl = document.getElementById('cnt');
+  const tipEl = document.getElementById('tip');
+  const allBtn = document.getElementById('all');
+  let mode = 'learn';
+  const selected = new Set();
+
+  function render(){
+    if (mode === 'learn'){
+      listEl.innerHTML = WORDS.map((x,i)=>`
+        <div class="w ${selected.has(i)?'sel':''}" data-i="${i}">
+          <div class="tick">✓</div>
+          <div class="word">${x.w}</div>
+          <div class="mean"><i>${x.pos}</i>${x.mean}</div>
+          <div class="state ${x.st}">${x.st==='learned'?'已学':'未学'}</div>
+        </div>`).join('');
+      cntEl.textContent = '19 词 · 未学 5';
+      tipEl.textContent = '勾选要学的词，也可以一个不选直接按单元从头学。';
+      allBtn.style.display = '';
+    } else {
+      listEl.innerHTML = REVIEW.map((x,i)=>`
+        <div class="w ${selected.has(100+i)?'sel':''}" data-i="${100+i}">
+          <div class="tick">✓</div>
+          <div class="word">${x.w}</div>
+          <div class="mean"><i>${x.pos}</i>${x.mean}</div>
+          <div class="state ${x.due==='今天到期'?'due':'learned'}">${x.due}</div>
+        </div>`).join('');
+      cntEl.textContent = '已学 14 词 · 今天到期 3';
+      tipEl.textContent = '复习只从本单元「已学」的 14 个词里排，没学过的不出现。';
+      allBtn.style.display = 'none';
+    }
+    syncCta();
+  }
+
+  function syncCta(){
+    const n = selected.size;
+    if (mode === 'learn'){
+      selPill.textContent = n > 0 ? `已选 ${n} 词` : '本单元 19 词';
+      goBtn.innerHTML = n > 0 ? `开始学习 · ${n} 词` : '按单元学 · 5 词';
+      goBtn.classList.remove('mint');
+    } else {
+      selPill.textContent = n > 0 ? `已选 ${n} 词` : '今天到期 3';
+      goBtn.innerHTML = n > 0 ? `开始复习 · ${n} 词` : '开始复习 · 3 词';
+      goBtn.classList.add('mint');
+    }
+  }
+
+  listEl.addEventListener('click', e => {
+    const row = e.target.closest('.w');
+    if (!row) return;
+    const i = Number(row.dataset.i);
+    selected.has(i) ? selected.delete(i) : selected.add(i);
+    row.classList.toggle('sel');
+    syncCta();
+  });
+
+  allBtn.addEventListener('click', () => {
+    const rows = [...listEl.querySelectorAll('.w')];
+    const allOn = rows.every(r => r.classList.contains('sel'));
+    rows.forEach(r => {
+      const i = Number(r.dataset.i);
+      if (allOn){ selected.delete(i); r.classList.remove('sel'); }
+      else { selected.add(i); r.classList.add('sel'); }
+    });
+    syncCta();
+  });
+
+  document.getElementById('seg').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    mode = b.dataset.mode;
+    [...document.querySelectorAll('#seg button')].forEach(x => x.classList.toggle('on', x === b));
+    selected.clear();
+    render();
+  });
+
+  document.getElementById('subtabs').addEventListener('click', e => {
+    const s = e.target.closest('span');
+    if (!s) return;
+    [...document.querySelectorAll('#subtabs span')].forEach(x => x.classList.toggle('on', x === s));
+    selected.clear();
+    render();
+  });
+
+  /* 预览参数：?mode=review 直接看复习态；?sel=0,1,2 预选几个词 */
+  const q = new URLSearchParams(location.search);
+  if (q.get('mode') === 'review'){
+    mode = 'review';
+    document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === 'review'));
+  }
+  (q.get('sel') || '').split(',').filter(Boolean).map(Number).forEach(i => selected.add(i));
+
+  render();
+</script>
+</body>
+</html>
