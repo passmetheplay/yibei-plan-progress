@@ -9,29 +9,23 @@
     --bg:#FFF8F0;--ink:#2A1F1A;--ink-2:#7C6A60;--ink-3:#B3A298;
     --orange:#FF7A45;--orange-deep:#E8590C;--orange-soft:#FFF1E8;
     --mint:#1FBFA4;--mint-deep:#0E9C86;--mint-soft:#E9FBF6;
-    --line:#F4EBE2;
     --font:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:var(--font);color:var(--ink);
     background:radial-gradient(900px 600px at 8% 0%,#FFE3D2 0%,transparent 55%),
       radial-gradient(900px 700px at 96% 100%,#DDF7EF 0%,transparent 55%),var(--bg);
-    min-height:100dvh;padding:30px 20px 70px}
-  h1,h2,h3,h4,p{margin:0}
+    min-height:100dvh;padding:30px 20px 60px}
+  h1,h2,h3,p{margin:0}
   button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit}
 
-  .head{max-width:900px;margin:0 auto 24px}
+  .head{max-width:720px;margin:0 auto 22px;text-align:center}
   .head .kick{font-size:10px;font-weight:900;letter-spacing:1.6px;color:var(--orange-deep)}
-  .head h1{font-size:24px;letter-spacing:-.6px;margin:8px 0 8px}
-  .head p{font-size:12.5px;line-height:1.75;color:var(--ink-2);max-width:820px}
+  .head h1{font-size:23px;letter-spacing:-.6px;margin:8px 0 8px}
+  .head p{font-size:12.5px;line-height:1.75;color:var(--ink-2)}
   .head p b{color:var(--ink)}
 
-  .grid{display:grid;grid-template-columns:repeat(2,394px);gap:28px 24px;justify-content:center;max-width:860px;margin:0 auto;align-items:start}
-  .item{width:394px}
-  .cap{margin-bottom:10px;padding-left:2px}
-  .cap b{font-size:12.5px;font-weight:900;letter-spacing:-.2px}
-  .cap i{font-style:normal;font-size:9px;font-weight:900;color:#fff;background:var(--orange);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:1px}
-  .cap span{display:block;font-size:10.5px;color:var(--ink-2);margin-top:5px;line-height:1.6}
+  .stage{display:flex;justify-content:center}
 
   .app{position:relative;width:394px;border-radius:26px;padding:14px;
     background:#FFF8F0;border:1px solid rgba(122,86,62,.08);
@@ -98,8 +92,8 @@
   .u-data .m b{color:var(--mint-deep)}
   .u-data .o b{color:var(--orange-deep)}
 
-  .u-acts{flex:none;display:flex;flex-direction:column;gap:4px;width:64px}
-  .u-acts button{height:24px;border-radius:8px;font-size:9px;font-weight:900;white-space:nowrap;
+  .u-acts{flex:none;display:flex;flex-direction:row;gap:5px}
+  .u-acts button{height:28px;padding:0 9px;border-radius:9px;font-size:9px;font-weight:900;white-space:nowrap;
     display:flex;align-items:center;justify-content:center}
   .b-learn{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;box-shadow:0 3px 8px rgba(220,90,30,.20)}
   .b-review{background:#fff;color:var(--orange-deep);border:1.2px solid #FFD2BC}
@@ -107,28 +101,58 @@
   .b-text{background:#fff;color:var(--mint-deep);border:1.2px solid #BFEDE2}
   .u-acts button.off{color:#C9BDB3;border-color:#EFE5DB;background:#FBF7F3;box-shadow:none}
 
-  /* 横排变体 */
-  .unit.h{flex-wrap:nowrap}
-  .unit.h .u-acts{flex-direction:row;width:auto;gap:5px}
-  .unit.h .u-acts button{height:28px;padding:0 8px;font-size:9px}
-  .unit.h .u-left{min-width:0}
-  .unit.h .u-name span{max-width:96px}
-
   .tip{position:relative;font-size:9px;font-weight:800;color:#A9978B;line-height:1.6;margin:10px 4px 0}
 
-  @media (max-width:860px){ .grid{grid-template-columns:394px} }
+  .legend{max-width:720px;margin:22px auto 0;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .legend div{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;color:var(--ink-2)}
+  .legend .sw{width:34px;height:20px;border-radius:7px;display:grid;place-items:center;font-size:7.5px;font-weight:900}
+  .legend .sw.l{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff}
+  .legend .sw.r{background:#fff;border:1.2px solid #FFD2BC;color:var(--orange-deep)}
+  .legend .sw.t{background:#fff;border:1.2px solid #BFEDE2;color:var(--mint-deep)}
 </style>
 </head>
 <body>
 
 <div class="head">
   <div class="kick">词库 TAB · 单元列表</div>
-  <h1>单元上展示学习数据，右侧三个动作：学词 / 复习词 / 学课文</h1>
-  <p>头部用 B 版（教材卡 + 到期条）。单元行左侧是<b>本单元数据</b>（已学、已掌握、未学 + 进度条），
-    右侧三个按钮：<b>学词</b>、<b>复习词</b>、<b>学课文</b>。下面两版只差按钮的排列方式。</p>
+  <h1>单元数据在左，三个动作在右</h1>
+  <p>头部用 B 版（教材卡 + 到期条）。单元行左侧是<b>已学 / 掌握 / 未学</b>和进度条，
+    右侧三个不带数字的按钮：<b>学词</b>、<b>复习词</b>、<b>学课文</b>。</p>
 </div>
 
-<div class="grid" id="grid"></div>
+<div class="stage">
+  <div class="app">
+    <div class="nav"><h2>词库</h2><div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div></div>
+
+    <div class="card book">
+      <div class="cover"><img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E"></div>
+      <div class="info">
+        <h3>五年级上册</h3>
+        <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+        <div class="bar"><i style="width:42%"></i></div>
+        <div class="pct">已学 50 / 118 · 已掌握 18</div>
+      </div>
+    </div>
+
+    <div class="due">
+      <span class="dot"></span>
+      <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
+      <button class="go">去复习</button>
+    </div>
+
+    <div class="sec"><h3>单元<span>6 个</span></h3><span class="entry">学习记录 ›</span></div>
+
+    <div class="units" id="units"></div>
+
+    <div class="tip">学词、复习词、学课文都会留下记录；单词列表里长按单词即可发音，不单独占按钮。</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div><span class="sw l">学词</span>没学的词（学完置灰）</div>
+  <div><span class="sw r">复习词</span>已学的词（没有则置灰）</div>
+  <div><span class="sw t">学课文</span>本单元课文</div>
+</div>
 
 <script>
   const UNITS = [
@@ -140,12 +164,10 @@
     { n:6, title:"In a nature park",     total:24, learned:0,  mastered:0 }
   ];
 
-  const COVER = `data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E`;
-
-  function unitRow(u, layout){
+  document.getElementById('units').innerHTML = UNITS.map(u => {
     const left = u.total - u.learned, full = left === 0, pct = Math.round(u.learned/u.total*100);
     return `
-      <div class="unit ${layout === 'h' ? 'h' : ''}">
+      <div class="unit">
         <div class="u-left">
           <div class="u-top">
             <div class="u-no ${full?'done':''}">${u.n}</div>
@@ -161,49 +183,14 @@
         <div class="u-acts">
           ${full
             ? `<button class="b-learn off">已学完</button>`
-            : `<button class="b-learn">学词 ${left}</button>`}
+            : `<button class="b-learn">学词</button>`}
           ${u.learned > 0
-            ? `<button class="b-review ${full ? 'main' : ''}">复习词 ${u.learned}</button>`
+            ? `<button class="b-review ${full ? 'main' : ''}">复习词</button>`
             : `<button class="b-review off">复习词</button>`}
           <button class="b-text">学课文</button>
         </div>
       </div>`;
-  }
-
-  const HEADER = `
-    <div class="card book">
-      <div class="cover"><img alt="" src="${COVER}"></div>
-      <div class="info">
-        <h3>五年级上册</h3>
-        <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
-        <div class="bar"><i style="width:42%"></i></div>
-        <div class="pct">已学 50 / 118 · 已掌握 18</div>
-      </div>
-    </div>
-    <div class="due">
-      <span class="dot"></span>
-      <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
-      <button class="go">去复习</button>
-    </div>`;
-
-  const CARDS = [
-    { layout:'v', tag:'A · 右侧竖排', ti:'推荐',
-      sub:'信息在左、三个动作在右竖排，行高只多 10px；「学词 / 复习词 / 学课文」一眼全在，拇指也好点。' },
-    { layout:'h', tag:'B · 右侧横排', ti:'更紧凑',
-      sub:'三个按钮并排放在右侧，行更矮能多露一个单元；但单元名和数据的横向空间被压掉约 60px。' }
-  ];
-
-  document.getElementById('grid').innerHTML = CARDS.map(c => `
-    <div class="item">
-      <div class="cap"><b>${c.tag}</b><i>${c.ti}</i><span>${c.sub}</span></div>
-      <div class="app">
-        <div class="nav"><h2>词库</h2><div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div></div>
-        ${HEADER}
-        <div class="sec"><h3>单元<span>6 个</span></h3><span class="entry">学习记录 ›</span></div>
-        <div class="units">${UNITS.map(u => unitRow(u, c.layout)).join('')}</div>
-        <div class="tip">学词、复习词、学课文都会留下记录；点读在单词列表里长按即可发音，不单独占一个按钮。</div>
-      </div>
-    </div>`).join('');
+  }).join('');
 </script>
 </body>
 </html>
