@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>词库 Tab · 单元列表 + 4 版头部</title>
+<style>
+  :root{
+    --bg:#FFF8F0;--ink:#2A1F1A;--ink-2:#7C6A60;--ink-3:#B3A298;
+    --orange:#FF7A45;--orange-deep:#E8590C;--orange-soft:#FFF1E8;
+    --mint:#1FBFA4;--mint-deep:#0E9C86;--mint-soft:#E9FBF6;
+    --line:#F4EBE2;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);
+    background:radial-gradient(900px 600px at 8% 0%,#FFE3D2 0%,transparent 55%),
+      radial-gradient(900px 700px at 96% 100%,#DDF7EF 0%,transparent 55%),var(--bg);
+    min-height:100dvh;padding:30px 20px 70px}
+  h1,h2,h3,h4,p{margin:0}
+  button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit}
+
+  .head{max-width:880px;margin:0 auto 24px}
+  .head .kick{font-size:10px;font-weight:900;letter-spacing:1.6px;color:var(--orange-deep)}
+  .head h1{font-size:24px;letter-spacing:-.6px;margin:8px 0 8px}
+  .head p{font-size:12.5px;line-height:1.75;color:var(--ink-2)}
+  .head p b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,394px);gap:28px 24px;justify-content:center;max-width:900px;margin:0 auto;align-items:start}
+  .item{width:394px}
+  .cap{margin-bottom:10px;padding-left:2px}
+  .cap b{font-size:12.5px;font-weight:900;letter-spacing:-.2px}
+  .cap i{font-style:normal;font-size:9px;font-weight:900;color:#fff;background:var(--orange);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:1px}
+  .cap span{display:block;font-size:10.5px;color:var(--ink-2);margin-top:5px;line-height:1.6}
+
+  .app{position:relative;width:394px;border-radius:26px;padding:14px 14px 14px;
+    background:#FFF8F0;border:1px solid rgba(122,86,62,.08);
+    box-shadow:0 18px 40px rgba(150,110,80,.14);overflow:hidden}
+  .app::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px 220px at 20% 0%,#FFE9D8 0%,transparent 70%),
+      radial-gradient(380px 220px at 100% 100%,#E4FBF3 0%,transparent 70%)}
+
+  .nav{position:relative;display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
+  .nav h2{font-size:19px;font-weight:900;letter-spacing:-.5px}
+  .nav .r{display:flex;align-items:center;gap:8px}
+  .chip{font-size:9.5px;font-weight:900;color:var(--orange-deep);background:#fff;border:1px solid #F3E2D4;
+    border-radius:999px;padding:5px 9px;white-space:nowrap}
+  .icon-btn{width:28px;height:28px;border-radius:9px;background:#fff;display:grid;place-items:center;
+    box-shadow:0 3px 8px rgba(160,120,90,.12);font-size:13px}
+
+  .card{position:relative;background:#fff;border-radius:18px;padding:14px;
+    box-shadow:0 8px 20px rgba(180,140,100,.10)}
+
+  .cover{border-radius:8px;flex:none;overflow:hidden;box-shadow:0 8px 16px rgba(150,95,45,.24)}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .bar{height:6px;border-radius:999px;background:#F4EDE5;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFB07A,#FF6A2B)}
+
+  /* ---------- A：教材卡 ---------- */
+  .book{display:flex;gap:12px;align-items:center}
+  .book .cover{width:54px;height:74px}
+  .book .info{flex:1;min-width:0}
+  .book h3{font-size:15px;font-weight:900;letter-spacing:-.3px}
+  .book .meta{font-size:9.5px;font-weight:800;color:var(--ink-3);margin-top:4px;white-space:nowrap}
+  .book .meta b{color:var(--ink)}
+  .book .bar{margin-top:9px}
+  .book .pct{font-size:9px;font-weight:900;color:var(--orange-deep);margin-top:5px}
+
+  /* ---------- B：到期条 ---------- */
+  .due{position:relative;display:flex;align-items:center;gap:10px;margin-top:9px;border-radius:16px;
+    padding:11px 13px;background:linear-gradient(135deg,#EFFCF8,#DDF7EF);border:1px solid #C9F0E6}
+  .due .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);flex:none;box-shadow:0 0 0 4px rgba(31,191,164,.14)}
+  .due .t{flex:1;min-width:0}
+  .due .t b{display:block;font-size:10.5px;font-weight:900;color:#0B7F6D}
+  .due .t span{display:block;font-size:9px;font-weight:800;color:#51A497;margin-top:2px}
+  .due .go{font-size:9.5px;font-weight:900;color:#fff;background:linear-gradient(180deg,#2BD0B4,#12A78F);
+    border-radius:999px;padding:6px 10px;white-space:nowrap;box-shadow:0 4px 10px rgba(20,160,140,.22)}
+
+  /* ---------- C：大字进度 ---------- */
+  .big{padding:15px 16px 14px}
+  .big .row{display:flex;align-items:baseline;justify-content:space-between}
+  .big .name{font-size:10px;font-weight:900;color:var(--ink-3);letter-spacing:.2px}
+  .big .name b{color:var(--ink);font-size:11px;margin-right:4px}
+  .big .sw{font-size:9px;font-weight:900;color:var(--orange-deep)}
+  .big .num{display:flex;align-items:baseline;gap:6px;margin:9px 0 8px}
+  .big .num b{font-size:38px;font-weight:900;letter-spacing:-1.6px;line-height:1;
+    font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,#2A1F1A 30%,#8A6A55 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .big .num i{font-style:normal;font-size:14px;font-weight:900;color:var(--ink-3);letter-spacing:-.2px}
+  .big .num em{font-style:normal;margin-left:auto;font-size:10px;font-weight:900;color:var(--orange-deep);
+    background:var(--orange-soft);border-radius:999px;padding:4px 9px}
+  .big .bar{height:8px}
+  .big .stats{display:flex;margin-top:12px;padding-top:11px;border-top:1px solid #F7EFE7}
+  .big .stats div{flex:1}
+  .big .stats div + div{border-left:1px solid #F7EFE7;padding-left:12px}
+  .big .stats b{display:block;font-size:14px;font-weight:900;font-variant-numeric:tabular-nums}
+  .big .stats span{display:block;font-size:8.5px;font-weight:800;color:var(--ink-3);margin-top:2px}
+  .big .stats .m b{color:var(--mint-deep)}
+  .big .stats .o b{color:var(--orange-deep)}
+
+  /* ---------- D：封面 + 数据网格 ---------- */
+  .duo{display:flex;gap:13px}
+  .duo .cover{width:62px;height:86px}
+  .duo .right{flex:1;min-width:0}
+  .duo h3{font-size:15px;font-weight:900;letter-spacing:-.3px}
+  .duo .meta{font-size:9px;font-weight:800;color:var(--ink-3);margin-top:3px}
+  .duo .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}
+  .duo .grid3 div{background:#FFF9F4;border:1px solid #F7E9DC;border-radius:9px;padding:5px 6px;text-align:center}
+  .duo .grid3 b{display:block;font-size:12.5px;font-weight:900;font-variant-numeric:tabular-nums}
+  .duo .grid3 span{display:block;font-size:7.5px;font-weight:800;color:#B3A298;margin-top:1px}
+  .duo .grid3 .o b{color:var(--orange-deep)}
+  .duo .grid3 .m b{color:var(--mint-deep)}
+  .duo .bar{margin-top:9px}
+
+  /* ---------- 单元列表 ---------- */
+  .sec{position:relative;display:flex;align-items:baseline;justify-content:space-between;margin:15px 4px 8px}
+  .sec h3{font-size:12.5px;font-weight:900;letter-spacing:-.2px}
+  .sec h3 span{font-weight:800;color:var(--ink-3);font-size:9.5px;margin-left:4px}
+  .sec .entry{font-size:9.5px;font-weight:900;color:var(--orange-deep)}
+
+  .units{display:flex;flex-direction:column;gap:8px}
+  .unit{position:relative;background:#fff;border-radius:14px;padding:10px 12px 11px;
+    box-shadow:0 5px 14px rgba(180,140,100,.07);border:1px solid rgba(122,86,62,.05)}
+  .u-top{display:flex;align-items:center;gap:9px}
+  .u-no{width:26px;height:26px;border-radius:9px;flex:none;display:grid;place-items:center;
+    font-size:11px;font-weight:900;color:var(--orange-deep);background:var(--orange-soft)}
+  .u-no.done{color:var(--mint-deep);background:var(--mint-soft)}
+  .u-name{flex:1;min-width:0;display:flex;align-items:baseline;gap:5px}
+  .u-name b{font-size:12px;font-weight:900}
+  .u-name span{font-size:8.5px;font-weight:800;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .u-pct{font-size:9.5px;font-weight:900;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .u-bar{height:4px;border-radius:999px;background:#F4EDE5;margin-top:8px;overflow:hidden}
+  .u-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFC49A,#FF7A45)}
+  .u-bar i.full{background:linear-gradient(90deg,#5FE0C6,#1FBFA4)}
+    .u-acts{display:flex;gap:6px;margin-top:10px}
+  .u-acts button{flex:1;height:29px;border-radius:9px;font-size:9.5px;font-weight:900;
+    display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+  .act-read{background:#fff;color:var(--mint-deep);border:1.2px solid #BFEDE2}
+  .act-read svg{width:11px;height:11px}
+  .act-learn{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;
+    box-shadow:0 4px 10px rgba(220,90,30,.20)}
+  .act-review{background:#fff;color:var(--orange-deep);border:1.2px solid #FFD2BC}
+  .act-review.primary{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;border:0;box-shadow:0 4px 10px rgba(220,90,30,.20)}
+  .u-acts button.off{color:#C9BDB3;border-color:#EFE5DB;background:#fff;box-shadow:none}
+
+  .tip{position:relative;font-size:9px;font-weight:800;color:#A9978B;line-height:1.6;margin:10px 4px 0}
+
+  @media (max-width:860px){ .grid{grid-template-columns:394px} }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kick">词库 TAB · 单元列表 + 头部方案</div>
+  <h1>一个单元三种用法：点读 / 学新词 / 复习</h1>
+  <p>列表结构不变，只换头部。每行都保留三个动作：<b>点读</b>（听音、看义，不测验）、<b>学新词</b>（可挑词）、
+    <b>复习</b>（只排本单元已学词）。下面四版头部从"最轻"到"信息最密"排。</p>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+  const UNITS = [
+    { n:1, title:"What's he like?",      total:12, learned:12, mastered:8 },
+    { n:2, title:"My week",              total:19, learned:14, mastered:6 },
+    { n:3, title:"What would you like?", total:21, learned:12, mastered:4 },
+    { n:4, title:"What can you do?",     total:18, learned:8,  mastered:0 },
+    { n:5, title:"There is a big bed",   total:24, learned:4,  mastered:0 },
+    { n:6, title:"In a nature park",     total:24, learned:0,  mastered:0 }
+  ];
+
+  const COVER = `data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E`;
+  const SPK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"/><path d="M16 9a4.2 4.2 0 0 1 0 6"/><path d="M18.6 6.4a8 8 0 0 1 0 11.2"/></svg>`;
+
+  function unitList(){
+    return UNITS.map(u => {
+      const left = u.total - u.learned, full = left === 0, pct = Math.round(u.learned/u.total*100);
+      return `
+      <div class="unit">
+        <div class="u-top">
+          <div class="u-no ${full?'done':''}">${u.n}</div>
+          <div class="u-name"><b>Unit ${u.n}</b><span>${u.title}</span></div>
+          <div class="u-pct">${u.learned}/${u.total}</div>
+        </div>
+        <div class="u-bar"><i class="${full?'full':''}" style="width:${pct}%"></i></div>
+        <div class="u-acts">
+          <button class="act-read">${SPK} 点读</button>
+          ${full
+            ? `<button class="act-learn off">已学完</button>`
+            : `<button class="act-learn">学新词 ${left}</button>`}
+          ${u.learned > 0
+            ? `<button class="act-review ${full ? 'primary' : ''}">复习 ${u.learned}</button>`
+            : `<button class="act-review off">复习</button>`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const NAV = `<div class="nav"><h2>词库</h2><div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div></div>`;
+  const SEC = `<div class="sec"><h3>单元<span>6 个</span></h3><span class="entry">学习记录 ›</span></div>`;
+
+  const H = {
+    a: `<div class="card book">
+          <div class="cover"><img alt="" src="${COVER}"></div>
+          <div class="info">
+            <h3>五年级上册</h3>
+            <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+            <div class="bar"><i style="width:42%"></i></div>
+            <div class="pct">已学 50 / 118 · 已掌握 18</div>
+          </div>
+        </div>`,
+
+    b: `<div class="card book">
+          <div class="cover"><img alt="" src="${COVER}"></div>
+          <div class="info">
+            <h3>五年级上册</h3>
+            <div class="meta">人教PEP版 · 6 单元 · 共 <b>118</b> 词</div>
+            <div class="bar"><i style="width:42%"></i></div>
+            <div class="pct">已学 50 / 118 · 已掌握 18</div>
+          </div>
+        </div>
+        <div class="due">
+          <span class="dot"></span>
+          <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
+          <button class="go">去复习</button>
+        </div>`,
+
+    c: `<div class="card big">
+          <div class="row"><span class="name"><b>五年级上册</b>人教PEP · 6 单元 · 118 词</span><span class="sw">切换 ›</span></div>
+          <div class="num"><b>50</b><i>/ 118 词</i><em>42%</em></div>
+          <div class="bar"><i style="width:42%"></i></div>
+          <div class="stats">
+            <div><b>50</b><span>已学</span></div>
+            <div class="m"><b>18</b><span>已掌握</span></div>
+            <div class="o"><b>12</b><span>今天到期</span></div>
+          </div>
+        </div>`,
+
+    d: `<div class="card">
+          <div class="duo">
+            <div class="cover"><img alt="" src="${COVER}"></div>
+            <div class="right">
+              <h3>五年级上册</h3>
+              <div class="meta">人教PEP版 · 6 单元 · 共 118 词</div>
+              <div class="grid3">
+                <div><b>50</b><span>已学</span></div>
+                <div class="m"><b>18</b><span>已掌握</span></div>
+                <div class="o"><b>12</b><span>待复习</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="bar" style="margin-top:11px"><i style="width:42%"></i></div>
+        </div>`
+  };
+
+  const CARDS = [
+    { k:'a', tag:'A · 教材卡', ti:'最轻的一版', sub:'封面 + 书名 + 一条总进度。信息只够"知道学到哪"，把动作全留给下面的单元行，头部不抢戏。' },
+    { k:'b', tag:'B · 教材卡 + 到期条', ti:'行动优先', sub:'在 A 上面加一条薄荷色到期提醒，直接把"今天该复习"顶到第一屏，适合家长每天打开就看任务。' },
+    { k:'c', tag:'C · 大字进度', ti:'数据优先', sub:'已学 50 放到最大，一眼看到"还差多少"，再配已掌握 / 今天到期两个关键数；封面退成一句小字。' },
+    { k:'d', tag:'D · 封面 + 数据网格', ti:'信息最密', sub:'封面缩小、右侧塞三个数据块，书名、版本、进度全在一张卡里，单元列表能被推得更靠上。' }
+  ];
+
+  document.getElementById('grid').innerHTML = CARDS.map(c => `
+    <div class="item">
+      <div class="cap"><b>${c.tag}</b><i>${c.ti}</i><span>${c.sub}</span></div>
+      <div class="app">
+        ${NAV}
+        ${H[c.k]}
+        ${SEC}
+        <div class="units">${unitList()}</div>
+        <div class="tip">点读不产生学习记录，也不改变已学状态；学新词与复习才计入进度。</div>
+      </div>
+    </div>`).join('');
+</script>
+</body>
+</html>
