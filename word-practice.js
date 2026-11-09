@@ -32,15 +32,15 @@ function practiceOptions(word, unit, index) {
 }
 
 function practiceMarkup(key, session) {
-  const { entries, index, step, selected, used, passed, feedback, error, due, unitNumber } = session;
+  const { entries, index, step, selected, used, passed, feedback, error, fromDue, unitNumber } = session;
   const item = entries[index];
   const mode = key === 'learn' ? '学词' : '复习词';
   const range = unitNumber ? 'Unit ' + unitNumber : '全部到期词';
-  const back = due ? 'due' : 'home';
+  const back = fromDue ? 'due' : 'home';
   if (!item) {
     const body = entries.length ? '<strong>' + index + ' / ' + entries.length + '</strong><p>词已' + (key === 'learn' ? '学完' : '复习') + '</p>' : '<p>可以返回单元列表选择其他入口。</p>';
     return `<div class="flow-panel practice-summary"><div class="flow-eyebrow">${range} · ${mode}</div><h4>${entries.length ? '本轮完成' : '本轮没有单词'}</h4>${body}</div>
-      <div class="flow-footer">${open(back, due ? '返回到期列表' : '返回单元学', '', 'primary')}</div>`;
+      <div class="flow-footer">${open(back, fromDue ? '返回到期列表' : '返回单元学', '', 'primary')}</div>`;
   }
 
   const { word, unit } = item;

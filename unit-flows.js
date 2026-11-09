@@ -1,42 +1,42 @@
-function unit(n, title, learned, mastered, vocabulary, lines, due = 0, reviewed = mastered) {
+function unit(n, title, learned, mastered, vocabulary, due = 0, reviewed = mastered) {
   const words = vocabulary.split('|').map(pair => {
     const [en, cn] = pair.split(':');
     return { en, cn };
   });
   const dueWords = new Set(words.slice(0, due));
   return { n, title, learned, mastered, words, dueWords, reviewedWords: new Set(words.slice(0, reviewed)),
-    get due() { return dueWords.size; }, lines: lines.split('|').map(line => line.split(':')) };
+    get due() { return dueWords.size; } };
 }
 
 const books = [
   { name: '五年级上册', grade: '五', term: '上', units: [
-    unit(1, "What's he like?", 12, 8, 'old:年老的|young:年轻的|funny:滑稽的|kind:和蔼的|strict:严格的|polite:有礼貌的|shy:害羞的|helpful:有帮助的|clever:聪明的|hard-working:勤奋的|quiet:安静的|friendly:友好的', "Who is your art teacher?:谁是你的美术老师？|Mr Lee is my art teacher.:李老师是我的美术老师。|He is kind and funny.:他很和蔼，也很有趣。", 4, 10),
-    unit(2, 'My week', 14, 6, 'Monday:星期一|Tuesday:星期二|Wednesday:星期三|Thursday:星期四|Friday:星期五|Saturday:星期六|Sunday:星期日|weekend:周末|wash:洗|watch:观看|play:玩|read:阅读|homework:家庭作业|often:经常|sometimes:有时|usually:通常|every:每个|after:在……之后|class:课', 'What do you do on Saturdays?:你星期六做什么？|I often read books in the morning.:我经常在上午看书。|Sometimes I play football with my friends.:我有时和朋友们踢足球。', 5, 9),
-    unit(3, 'What would you like?', 12, 4, 'sandwich:三明治|salad:沙拉|hamburger:汉堡包|ice cream:冰激凌|tea:茶|fresh:新鲜的|healthy:健康的|delicious:美味的|hot:辣的|sweet:甜的|food:食物|drink:饮料|water:水|milk:牛奶|juice:果汁|rice:米饭|bread:面包|chicken:鸡肉|fish:鱼|fruit:水果|favourite:最喜欢的', 'What would you like for lunch?:午饭你想吃什么？|I would like a sandwich and some salad.:我想吃一个三明治和一些沙拉。|The salad is fresh.:沙拉很新鲜。', 3, 7),
-    unit(4, 'What can you do?', 8, 0, 'sing:唱歌|song:歌曲|dance:跳舞|draw:画|cartoon:漫画|swim:游泳|cook:烹饪|basketball:篮球|football:足球|pipa:琵琶|kung fu:功夫|speak:说|English:英语|Chinese:中文|learn:学习|practice:练习|run:跑|jump:跳', 'What can you do at the party?:你能在聚会上表演什么？|I can dance and sing.:我会跳舞，也会唱歌。|My friend can play the pipa.:我的朋友会弹琵琶。', 0, 4),
-    unit(5, 'There is a big bed', 4, 0, 'clock:时钟|plant:植物|bottle:瓶子|bike:自行车|photo:照片|front:前面|behind:在……后面|beside:在……旁边|between:在……之间|above:在……上面|room:房间|bed:床|desk:书桌|chair:椅子|window:窗户|door:门|wall:墙|floor:地板|computer:电脑|lamp:台灯|box:盒子|under:在……下面|near:在……附近|clean:干净的', 'There is a big bed in my room.:我的房间里有一张大床。|A photo is above the bed.:床的上方有一张照片。|The plant is beside the desk.:植物在书桌旁边。', 0, 2),
-    unit(6, 'In a nature park', 0, 0, 'forest:森林|river:河流|lake:湖泊|mountain:山|hill:小山|tree:树|bridge:桥|building:建筑物|village:村庄|house:房屋|park:公园|nature:自然|flower:花|grass:草|bird:鸟|cloud:云|boat:小船|path:小路|duck:鸭子|rabbit:兔子|sky:天空|quiet:安静的|beautiful:美丽的|beside:在……旁边', 'Is there a lake in the park?:公园里有湖吗？|Yes, there is a lake near the forest.:有，森林附近有一个湖。|Look! There are ducks on the lake.:看！湖上有鸭子。')
+    unit(1, "What's he like?", 12, 8, 'old:年老的|young:年轻的|funny:滑稽的|kind:和蔼的|strict:严格的|polite:有礼貌的|shy:害羞的|helpful:有帮助的|clever:聪明的|hard-working:勤奋的|quiet:安静的|friendly:友好的', 4, 10),
+    unit(2, 'My week', 14, 6, 'Monday:星期一|Tuesday:星期二|Wednesday:星期三|Thursday:星期四|Friday:星期五|Saturday:星期六|Sunday:星期日|weekend:周末|wash:洗|watch:观看|play:玩|read:阅读|homework:家庭作业|often:经常|sometimes:有时|usually:通常|every:每个|after:在……之后|class:课', 5, 9),
+    unit(3, 'What would you like?', 12, 4, 'sandwich:三明治|salad:沙拉|hamburger:汉堡包|ice cream:冰激凌|tea:茶|fresh:新鲜的|healthy:健康的|delicious:美味的|hot:辣的|sweet:甜的|food:食物|drink:饮料|water:水|milk:牛奶|juice:果汁|rice:米饭|bread:面包|chicken:鸡肉|fish:鱼|fruit:水果|favourite:最喜欢的', 3, 7),
+    unit(4, 'What can you do?', 8, 0, 'sing:唱歌|song:歌曲|dance:跳舞|draw:画|cartoon:漫画|swim:游泳|cook:烹饪|basketball:篮球|football:足球|pipa:琵琶|kung fu:功夫|speak:说|English:英语|Chinese:中文|learn:学习|practice:练习|run:跑|jump:跳', 0, 4),
+    unit(5, 'There is a big bed', 4, 0, 'clock:时钟|plant:植物|bottle:瓶子|bike:自行车|photo:照片|front:前面|behind:在……后面|beside:在……旁边|between:在……之间|above:在……上面|room:房间|bed:床|desk:书桌|chair:椅子|window:窗户|door:门|wall:墙|floor:地板|computer:电脑|lamp:台灯|box:盒子|under:在……下面|near:在……附近|clean:干净的', 0, 2),
+    unit(6, 'In a nature park', 0, 0, 'forest:森林|river:河流|lake:湖泊|mountain:山|hill:小山|tree:树|bridge:桥|building:建筑物|village:村庄|house:房屋|park:公园|nature:自然|flower:花|grass:草|bird:鸟|cloud:云|boat:小船|path:小路|duck:鸭子|rabbit:兔子|sky:天空|quiet:安静的|beautiful:美丽的|beside:在……旁边')
   ] },
   { name: '五年级下册', grade: '五', term: '下', units: [
-    unit(1, 'My day', 0, 0, 'breakfast:早餐|morning:早晨|exercise:锻炼|dinner:晚餐', 'I get up at seven.:我七点起床。|I eat breakfast at home.:我在家吃早餐。'),
-    unit(2, 'My favourite season', 0, 0, 'spring:春天|summer:夏天|autumn:秋天|winter:冬天', 'Which season do you like best?:你最喜欢哪个季节？|I like spring best.:我最喜欢春天。'),
-    unit(3, 'My school calendar', 0, 0, 'March:三月|April:四月|May:五月|June:六月', 'When is the school trip?:学校旅行是什么时候？|It is in May.:是在五月。'),
-    unit(4, 'When is the art show?', 0, 0, 'first:第一|second:第二|third:第三|fourth:第四', 'The art show is on May first.:美术展在五月一日。|We can see many pictures there.:我们可以在那里看到许多图画。'),
-    unit(5, 'Whose dog is it?', 0, 0, 'mine:我的|yours:你的|hers:她的|theirs:他们的', 'Whose dog is it?:这是谁的狗？|The small dog is mine.:这只小狗是我的。'),
-    unit(6, 'Work quietly!', 0, 0, 'quietly:安静地|read:阅读|write:写|talk:说话', 'Please talk quietly in the library.:请在图书馆里轻声说话。|We are reading books here.:我们在这里看书。')
+    unit(1, 'My day', 0, 0, 'breakfast:早餐|morning:早晨|exercise:锻炼|dinner:晚餐'),
+    unit(2, 'My favourite season', 0, 0, 'spring:春天|summer:夏天|autumn:秋天|winter:冬天'),
+    unit(3, 'My school calendar', 0, 0, 'March:三月|April:四月|May:五月|June:六月'),
+    unit(4, 'When is the art show?', 0, 0, 'first:第一|second:第二|third:第三|fourth:第四'),
+    unit(5, 'Whose dog is it?', 0, 0, 'mine:我的|yours:你的|hers:她的|theirs:他们的'),
+    unit(6, 'Work quietly!', 0, 0, 'quietly:安静地|read:阅读|write:写|talk:说话')
   ] }
 ];
 
 const demoBooks = [
-  ['三', '上', 'School things', 'pen:钢笔|pencil:铅笔|book:书|ruler:尺子', 'This is my pencil.:这是我的铅笔。'],
-  ['三', '下', 'My family', 'family:家庭|father:爸爸|mother:妈妈|sister:姐姐；妹妹', 'This is my family.:这是我的家人。'],
-  ['四', '上', 'My classroom', 'desk:书桌|chair:椅子|window:窗户|door:门', 'Open the window, please.:请打开窗户。'],
-  ['四', '下', 'My school', 'school:学校|library:图书馆|classroom:教室|playground:操场', 'Our library is very big.:我们的图书馆很大。'],
-  ['六', '上', 'Getting around', 'bus:公交车|train:火车|walk:走路|bike:自行车', 'I go to school by bus.:我坐公交车去上学。'],
-  ['六', '下', 'My weekend', 'clean:打扫|visit:拜访|watch:观看|wash:洗', 'I visited my grandparents.:我去看望了爷爷奶奶。']
+  ['三', '上', 'School things', 'pen:钢笔|pencil:铅笔|book:书|ruler:尺子'],
+  ['三', '下', 'My family', 'family:家庭|father:爸爸|mother:妈妈|sister:姐姐；妹妹'],
+  ['四', '上', 'My classroom', 'desk:书桌|chair:椅子|window:窗户|door:门'],
+  ['四', '下', 'My school', 'school:学校|library:图书馆|classroom:教室|playground:操场'],
+  ['六', '上', 'Getting around', 'bus:公交车|train:火车|walk:走路|bike:自行车'],
+  ['六', '下', 'My weekend', 'clean:打扫|visit:拜访|watch:观看|wash:洗']
 ];
-for (const [grade, term, title, words, lines] of demoBooks) {
-  books.push({ grade, term, name: grade + '年级' + term + '册', units: [unit(1, title, 0, 0, words, lines)] });
+for (const [grade, term, title, words] of demoBooks) {
+  books.push({ grade, term, name: grade + '年级' + term + '册', units: [unit(1, title, 0, 0, words)] });
 }
 const grades = ['三', '四', '五', '六'];
 
@@ -49,7 +49,7 @@ const flows = {
   ]],
   due: ['到期复习', '从绿色提醒卡「去复习」进入。', [
     '先看到今天到期的单元和词数，再决定按单元复习或一次复习全部。',
-    '到期入口只抽取到期词。没有到期词时显示空状态。'
+    '复习完成后扣减待复习词数，全部做完后首页隐藏任务条。'
   ]],
   records: ['学习记录', '从单元标题右侧「学习记录」进入。', [
     '教材名与单元范围在同一行。首次打开显示全书与全部，点击「全书」可展开单元列表。',
@@ -64,15 +64,16 @@ const flows = {
     '写对后点「下一个词」，下一词从「学」开始。最后一词进入本轮小结，整单元学完后首页显示「已学完」。'
   ]],
   review: ['复习词', '从单元「复习词」或到期列表进入。', [
-    '单元复习取所选单元已学词，到期复习只取所选范围内到期词。每轮固定自己的词表和进度。',
+    '单元按钮只取该单元的待复习词，顶部任务条可复习多个单元的待复习词。每轮固定自己的词表和进度。',
     '复用「学 → 读 → 练 → 拼 → 写」。答错留在本词，写对后点「下一个词」，下一词从「学」开始。',
-    '最后一词写对后点「完成复习」，先看本轮小结，再返回发起页。没有已学词的单元无法开始。',
+    '最后一词写对后点「完成复习」，先看本轮小结，再返回发起页。没有待复习词的单元，复习按钮置灰。',
     '单元内的学习与复习会更新教材词记录。今日按计划单独取词和结算任务进度。'
   ]],
   text: ['学课文', '从对应单元的「学课文」进入。', [
-    '标题下直接显示点读次数和译文开关。点读次数可选 1 次或 2 次，单句和单词点读共用这项设置。',
-    '打开或关闭译文后，句子列表立即更新。切换单元时保留本次浏览的选择。',
-    '点任意句听读，或点「从头播放」按顺序播放整篇，每句一次。手机图使用为原型编写的主题例句。'
+    '课文随所选教材展示。当前五年级课文有 A、B 对话，B 阅读和 C 选学故事。',
+    '显示译文和自动播放直接展开。进入课文或切换栏目时，开启自动播放会尝试播放当前栏目原声。',
+    '手点播放器可以播放或暂停。点已收录的句子时，优先播这一句。两项选择在本次浏览内保留。',
+    '五年级上下册接入人教社配套音频。逐句原文和译文先覆盖五年级上册 Unit 2 的 A、B 对话选段。'
   ]],
   test: ['检测', '从底部「检测」进入。', [
     '这里演示选择单元、答一道词义题、查看对错和正确答案。'
@@ -82,7 +83,7 @@ const flows = {
   ]]
 };
 
-const settings = { repeats: 1, translations: true };
+const settings = { translations: true, autoPlay: false };
 const defaults = { learn: 2, review: 1, text: 2 };
 const stage = document.querySelector('#unit-home');
 const gallery = document.querySelector('#flow-gallery');
@@ -96,6 +97,8 @@ let recordUnit = 0;
 let recordStatus = '全部';
 let textUnit = 2;
 let selectedLine = -1;
+let selectedLesson = 'a';
+let autoStartedAudio = null;
 let testUnit = 2;
 let testAnswer = -1;
 const practice = {};
@@ -124,9 +127,9 @@ function renderHome() {
   stage.querySelector('.sec h3 span').textContent = units.length + ' 个';
   stage.querySelector('.book .bar i').style.width = Math.round(learned / words * 100) + '%';
   stage.querySelector('.book .pct').textContent = `已学 ${learned} / ${words} · 已掌握 ${mastered}`;
-  stage.querySelector('.due .t b').textContent = due.length ? `今天 ${due.length} 个单元有 ${count(due, 'due')} 词到期` : '今天没有到期词';
-  stage.querySelector('.due .t span').textContent = due.length ? '先复习再学新词，记得更牢' : '可以选一个单元开始学词';
-  stage.querySelector('.due .go').textContent = due.length ? '去复习' : '查看';
+  const dueBar = stage.querySelector('.due');
+  dueBar.hidden = due.length === 0;
+  if (due.length) dueBar.querySelector('.t b').textContent = `今天 ${due.length} 个单元有 ${count(due, 'due')} 词到期`;
   stage.querySelector('#units').innerHTML = units.map(u => {
     const left = u.words.length - u.learned;
     const pct = Math.round(u.learned / u.words.length * 100);
@@ -139,32 +142,33 @@ function renderHome() {
       </div>
       <div class="u-acts">
         <button type="button" class="b-learn ${left ? '' : 'off'}" data-open="learn" data-unit="${u.n}" ${left ? '' : 'disabled'}>${left ? '学词' : '已学完'}</button>
-        <button type="button" class="b-review ${u.learned ? (left ? '' : 'main') : 'off'}" data-open="review" data-unit="${u.n}" ${u.learned ? '' : 'disabled'}>复习词</button>
+        <button type="button" class="b-review ${u.due ? 'main' : 'off'}" data-open="review" data-unit="${u.n}" ${u.due ? '' : 'disabled'}>复习词</button>
         <button type="button" class="b-text" data-open="text" data-unit="${u.n}">学课文</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function startPractice(key, n, due = false) {
+function startPractice(key, n, fromDue = false) {
   clearPracticeAudio(practice[key]);
   const unitNumber = n ? (getUnit(n)?.n ?? book().units[0].n) : 0;
   const selectedUnits = unitNumber ? [getUnit(unitNumber)] : dueUnits();
   const entries = selectedUnits.flatMap(unit => {
     const eligible = unit.words.map((word, offset) => ({ unit, word, offset }));
     if (key === 'learn') return eligible.slice(unit.learned);
-    if (due) return eligible.filter(({ word }) => unit.dueWords.has(word));
-    return eligible.slice(0, unit.learned);
+    return eligible.filter(({ word }) => unit.dueWords.has(word));
   });
-  practice[key] = { unitNumber, due, entries, index: 0 };
+  practice[key] = { unitNumber, fromDue, entries, index: 0 };
   resetPracticeStep(practice[key]);
 }
 
 function completePracticeWord(key, session) {
   const { unit, word, offset } = session.entries[session.index];
   if (key === 'learn') unit.learned = Math.max(unit.learned, offset + 1);
-  if (key === 'review') unit.reviewedWords.add(word);
-  if (session.due) unit.dueWords.delete(word);
+  if (key === 'review') {
+    unit.reviewedWords.add(word);
+    unit.dueWords.delete(word);
+  }
   session.index++;
   resetPracticeStep(session);
   renderHome();
@@ -204,6 +208,55 @@ function renderRecords() {
     <div class="flow-feedback" aria-live="polite"></div>`;
 }
 
+function currentLessonLines() {
+  const { grade, term } = book();
+  return grade === '五' && term === '上' && textUnit === 2 ? pepLessonExcerpts[selectedLesson] ?? [] : [];
+}
+
+function renderText() {
+  const u = getUnit(textUnit);
+  const { grade, term } = book();
+  const tracks = grade === '五' ? pepLessonAudio[term][u.n] : null;
+  const lines = currentLessonLines();
+  const settingsRow = (label, command, checked) => `<label class="reading-setting"><span>${label}</span><span class="reading-switch">
+    <input type="checkbox" role="switch" data-action="${command}" ${checked ? 'checked' : ''}><span aria-hidden="true"></span></span></label>`;
+  const sections = pepLessonParts.filter(({ key }) => tracks?.[key]).map(({ key, part, title, optional }) =>
+    `<button type="button" class="lesson-part" data-action="choose-lesson" data-part="${key}" aria-pressed="${key === selectedLesson}">
+      <b>${part}${optional ? ' · 选学' : ''}</b><span>${title}</span></button>`).join('');
+  return `<div class="flow-panel"><div class="flow-eyebrow">${book().name} · Unit ${u.n}</div><h4>${u.title}</h4></div>
+    <div class="flow-panel reading-settings">
+      ${settingsRow('显示译文', 'translations', settings.translations)}
+      ${settingsRow('自动播放', 'autoplay', settings.autoPlay)}
+    </div>
+    ${sections ? `<div class="lesson-parts" role="group" aria-label="课文栏目">${sections}</div>
+      <div class="flow-panel lesson-audio"><h4>课文原声</h4><audio controls controlslist="nodownload noplaybackrate noremoteplayback" preload="none" src="${tracks[selectedLesson]}"></audio>
+      <a class="lesson-source" href="${pepAudioDirectory[term]}" target="_blank" rel="noopener">人教社配套音频 ↗</a></div>
+      ${lines.length ? `<p class="flow-caption">课文选段 · 点句子听读</p>${lines.map(([en, cn], i) =>
+        `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">${i + 1}. <b>${en}</b><span class="line-translation" ${settings.translations ? '' : 'hidden'}>${cn}</span></button>`).join('')}`
+        : '<p class="flow-caption">本栏目的逐句原文和译文暂未接入。</p>'}`
+      : '<div class="flow-panel"><p>这册教材的课文内容暂未接入。</p></div>'}
+    <div class="flow-feedback" aria-live="polite"></div>`;
+}
+
+function stopLessonPlayback() {
+  area('text').querySelector('audio')?.pause();
+  autoStartedAudio = null;
+}
+
+function autoplayLesson() {
+  const audio = area('text').querySelector('audio');
+  if (!settings.autoPlay || !audio) return;
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  const feedback = area('text').querySelector('.flow-feedback');
+  feedback.textContent = '';
+  autoStartedAudio = audio;
+  audio.play().catch(error => {
+    if (autoStartedAudio !== audio || error.name === 'AbortError') return;
+    autoStartedAudio = null;
+    feedback.textContent = '自动播放未启动，请点播放器播放。';
+  });
+}
+
 const renderers = {
   book: renderBookPicker,
   due: () => {
@@ -216,19 +269,7 @@ const renderers = {
   records: renderRecords,
   learn: () => practiceMarkup('learn', practice.learn),
   review: () => practiceMarkup('review', practice.review),
-  text: () => {
-    const u = getUnit(textUnit);
-    return `<div class="flow-panel"><div class="flow-eyebrow">Unit ${u.n} · 听读示例</div><h4>${u.title}</h4><p>点句子听英文</p></div>
-      <div class="flow-panel reading-settings">
-        <div class="reading-setting"><span id="reading-repeats-label">点读次数</span><div class="reading-segments" role="radiogroup" aria-labelledby="reading-repeats-label">
-          ${[1, 2].map(repeats => `<label><input type="radio" name="reading-repeats" value="${repeats}" data-action="repeats" ${settings.repeats === repeats ? 'checked' : ''}><span>${repeats} 次</span></label>`).join('')}
-        </div></div>
-        <label class="reading-setting"><span>显示译文</span><span class="reading-switch"><input type="checkbox" role="switch" data-action="translations" ${settings.translations ? 'checked' : ''}><span aria-hidden="true"></span></span></label>
-      </div>
-      ${u.lines.map(([en, cn], i) => `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">${i + 1}. <b>${en}</b><span class="line-translation" ${settings.translations ? '' : 'hidden'}>${cn}</span></button>`).join('')}
-      <div class="flow-actions">${action('say-all', '从头播放', 'mint')}</div>
-      <div class="flow-feedback" aria-live="polite"></div>`;
-  },
+  text: renderText,
   test: () => {
     const u = getUnit(testUnit);
     const options = [u.words[1], u.words[0], u.words[2]];
@@ -253,9 +294,9 @@ function render(key) {
   }
   if (key === 'review') {
     const back = nav.querySelector('a');
-    back.dataset.open = session.due ? 'due' : 'home';
+    back.dataset.open = session.fromDue ? 'due' : 'home';
     back.href = '#' + anchor(back.dataset.open);
-    back.querySelector('span').textContent = session.due ? '返回到期复习' : '返回单元学';
+    back.querySelector('span').textContent = session.fromDue ? '返回到期复习' : '返回单元学';
   }
 }
 
@@ -285,10 +326,12 @@ function renderGallery() {
 }
 
 function resetBookViews() {
+  stopLessonPlayback();
   recordUnit = 0;
   recordStatus = '全部';
   textUnit = getUnit(defaults.text)?.n ?? book().units[0].n;
   selectedLine = -1;
+  selectedLesson = 'a';
   testUnit = textUnit;
   testAnswer = -1;
   startPractice('learn', defaults.learn);
@@ -299,6 +342,7 @@ function resetBookViews() {
 
 function openFlow(button) {
   const key = button.dataset.open;
+  stopLessonPlayback();
   for (const mode of ['learn', 'review']) {
     const session = practice[mode];
     if (session.recording || session.audioRequest || session.audioUrl) {
@@ -318,25 +362,26 @@ function openFlow(button) {
   if (key === 'text') {
     textUnit = getUnit(Number(button.dataset.unit ?? defaults.text))?.n ?? book().units[0].n;
     selectedLine = -1;
+    selectedLesson = 'a';
     render(key);
   }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   show(key);
+  if (key === 'text') autoplayLesson();
 }
 
-function speak(lines, key, repeats = 1) {
+function speak(lines, key) {
   const feedback = area(key).querySelector('.flow-feedback');
   if (!('speechSynthesis' in window)) {
     feedback.textContent = '当前浏览器不支持语音播放。';
     return;
   }
   window.speechSynthesis.cancel();
-  const queue = Array.from({ length: repeats }, () => lines).flat();
-  queue.forEach((line, index) => {
+  lines.forEach((line, index) => {
     const audio = new SpeechSynthesisUtterance(line);
     audio.lang = 'en-US';
     audio.rate = .85;
-    if (index === queue.length - 1) audio.onend = () => { feedback.textContent = '播放完成'; };
+    if (index === lines.length - 1) audio.onend = () => { feedback.textContent = '播放完成'; };
     audio.onerror = event => {
       if (event.error !== 'canceled' && event.error !== 'interrupted') feedback.textContent = '当前设备无法播放英文语音。';
     };
@@ -373,8 +418,14 @@ gallery.addEventListener('change', event => {
     testAnswer = -1;
     render('test');
     area('test').querySelector('[data-action="test-unit"]').focus();
-  } else if (command === 'repeats') {
-    settings.repeats = Number(value);
+  } else if (command === 'autoplay') {
+    settings.autoPlay = event.target.checked;
+    if (settings.autoPlay) autoplayLesson();
+    else {
+      autoStartedAudio?.pause();
+      autoStartedAudio = null;
+      area('text').querySelector('.flow-feedback').textContent = '';
+    }
   } else if (command === 'translations') {
     settings.translations = event.target.checked;
     for (const translation of area('text').querySelectorAll('.line-translation')) {
@@ -413,9 +464,9 @@ gallery.addEventListener('click', event => {
     render(key);
     area(key).querySelector('[aria-pressed="true"]').focus();
   } else if (command === 'say-word') {
-    speak([button.querySelector('b').textContent], key, settings.repeats);
+    speak([button.querySelector('b').textContent], key);
   } else if (command === 'say-card') {
-    speak([session.entries[session.index].word.en], key, settings.repeats);
+    speak([session.entries[session.index].word.en], key);
   } else if (command === 'record-voice') {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     togglePracticeRecording(session, () => render(key));
@@ -449,14 +500,22 @@ gallery.addEventListener('click', event => {
     completePracticeWord(key, session);
     render(key);
     area(key).querySelector('.flow-footer button').focus({ preventScroll: true });
-  } else if (command === 'say-line' || command === 'say-all') {
-    selectedLine = command === 'say-line' ? Number(button.dataset.line) : 0;
+  } else if (command === 'choose-lesson') {
+    if (selectedLesson === button.dataset.part) return;
+    stopLessonPlayback();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    selectedLesson = button.dataset.part;
+    selectedLine = -1;
+    render(key);
+    area(key).querySelector('[aria-pressed="true"]').focus({ preventScroll: true });
+    autoplayLesson();
+  } else if (command === 'say-line') {
+    stopLessonPlayback();
+    selectedLine = Number(button.dataset.line);
     for (const line of area(key).querySelectorAll('[data-line]')) {
       line.setAttribute('aria-pressed', String(Number(line.dataset.line) === selectedLine));
     }
-    const lines = getUnit(textUnit).lines;
-    if (command === 'say-all') speak(lines.map(([en]) => en), key);
-    else speak([lines[selectedLine][0]], key, settings.repeats);
+    speak([currentLessonLines()[selectedLine][0]], key);
   } else if (command === 'answer') {
     testAnswer = Number(button.dataset.index);
     render(key);
@@ -485,7 +544,7 @@ gallery.addEventListener('pointerdown', event => {
   heldWord = null;
   holdTimer = setTimeout(() => {
     heldWord = button;
-    speak([button.querySelector('b').textContent], 'records', settings.repeats);
+    speak([button.querySelector('b').textContent], 'records');
   }, 520);
 });
 for (const name of ['pointerup', 'pointercancel', 'pointerleave']) {
@@ -500,6 +559,20 @@ gallery.addEventListener('click', event => {
     event.stopImmediatePropagation();
   }
 }, true);
+
+gallery.addEventListener('play', event => {
+  if (event.target.tagName !== 'AUDIO') return;
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  area('text').querySelector('.flow-feedback').textContent = '';
+}, true);
+
+window.addEventListener('popstate', () => {
+  if (location.hash !== '#entry-text') {
+    stopLessonPlayback();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+});
+window.addEventListener('pagehide', stopLessonPlayback);
 
 renderGallery();
 resetBookViews();

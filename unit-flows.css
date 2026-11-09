@@ -59,11 +59,8 @@
 .reading-settings{padding:2px 12px}
 .reading-setting{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:47px;font-size:12px;font-weight:800}
 .reading-setting+.reading-setting{border-top:1px solid #F3E6DA;cursor:pointer}
-.reading-segments{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:3px;border-radius:10px;background:#F2E7DE}
-.reading-segments label,.reading-switch{position:relative;cursor:pointer}
-.reading-segments input,.reading-switch input{position:absolute;width:1px;height:1px;opacity:0}
-.reading-segments label span{display:grid;place-items:center;min-width:46px;min-height:30px;border-radius:7px;color:#6B594D}
-.reading-segments input:checked+span{background:#FFF;color:#A4471C;box-shadow:0 1px 4px #4C2E1315}
+.reading-switch{position:relative;cursor:pointer}
+.reading-switch input{position:absolute;width:1px;height:1px;opacity:0}
 .reading-switch span{display:block;width:42px;height:24px;padding:3px;border-radius:999px;background:#D7C7BC}
 .reading-switch span::before{content:'';display:block;width:18px;height:18px;border-radius:50%;background:#FFF;box-shadow:0 1px 3px #42220F30}
 .reading-switch input:checked+span{background:#0B7968}
@@ -157,3 +154,13 @@
   .u-acts{grid-template-columns:repeat(3,39px)}
   .record-filters button{font-size:10px}
 }
+
+.lesson-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.lesson-part{min-height:48px;padding:5px 8px;border-radius:10px;border:1px solid #EADACD;background:#FFF;text-align:left}
+.lesson-part b,.lesson-part span{display:block}
+.lesson-part b{color:var(--ink-2);font-size:10px}
+.lesson-part span{font-size:12px;font-weight:800}
+.lesson-part[aria-pressed=true]{background:#FFF0E7;border-color:#E0A88A;color:#A4471C}
+.lesson-part[aria-pressed=true] b{color:#A4471C}
+.lesson-audio audio{display:block;width:100%;height:36px;margin:8px 0}
+.lesson-source{color:#A4471C;font-size:11px;font-weight:750;text-decoration:none}
