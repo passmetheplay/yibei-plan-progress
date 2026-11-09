@@ -54,9 +54,6 @@ const flows = {
     '点任意句听读，也可以从第一句连续播放。',
     '译文可在本页展开或收起。手机图使用为原型编写的主题例句。'
   ]],
-  today: ['今日', '从底部「今日」切回每日计划和任务。', [
-    '可在同一页切换两套已确认的今日原型。A 从还未开始学习展示，B 播放整本学完的进度动效。'
-  ]],
   test: ['检测', '从底部「检测」进入。', [
     '这里演示选择单元、答一道词义题、查看对错和正确答案。'
   ]],
@@ -67,10 +64,6 @@ const flows = {
 
 const settings = { repeats: 1, translations: true };
 const defaults = { learn: 2, review: 1, text: 2 };
-const prototypeUrl = {
-  a: 'https://passmetheplay.github.io/wordclass-prototype/today-entries/today-a-single.html?v=4b9f889',
-  b: 'https://passmetheplay.github.io/wordclass-prototype/today-entries/today-b-single.html?v=62adfa4'
-};
 const stage = document.querySelector('#unit-home');
 const gallery = document.querySelector('#flow-gallery');
 const statusbar = stage.querySelector('.statusbar').outerHTML;
@@ -84,7 +77,6 @@ let textUnit = 2;
 let selectedLine = -1;
 let testUnit = 2;
 let testAnswer = -1;
-let todayVariant = 'a';
 const practice = {};
 
 const book = () => books[activeBook];
@@ -201,7 +193,6 @@ const renderers = {
       <div class="flow-actions">${action('say-all', '从头播放', 'mint')}${action('toggle-translation', settings.translations ? '收起译文' : '显示译文')}</div>
       <div class="flow-feedback" aria-live="polite"></div>`;
   },
-  today: () => `<div class="flow-actions">${action('today-a', '方案 A')}${action('today-b', '方案 B')}</div><iframe title="今日首页 · 方案 ${todayVariant.toUpperCase()}" src="${prototypeUrl[todayVariant]}" loading="lazy"></iframe>`,
   test: () => {
     const u = getUnit(testUnit);
     const options = [u.words[1], u.words[0], u.words[2]];
@@ -225,6 +216,7 @@ function render(key) {
 
 function show(key) {
   const target = document.getElementById(anchor(key));
+  if (!target) return;
   if (location.hash !== '#' + target.id) history.pushState(null, '', '#' + target.id);
   target.scrollIntoView({ block: 'start' });
   const heading = target.querySelector('h2, h3');
@@ -236,12 +228,10 @@ function renderGallery() {
   gallery.innerHTML = `<header class="gallery-heading"><h2>点击后的页面</h2><p>每组左侧是可操作的手机图，右侧是入口和状态说明。也可以从上方手机直接点进来。词数和练习内容为演示数据。</p></header>`
     + Object.entries(flows).map(([key, [title, caption, notes]], index) => {
       const back = `<a href="#unit-home" data-open="home">‹ 单元学</a>`;
-      const phone = key === 'today' ? '<div class="flow-today flow-content"></div>'
-        : `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}<h3>${title}</h3></header><div class="flow-stack flow-content"></div></div></div></div>`;
-      const links = key === 'today' ? `<div class="flow-links"><a href="${prototypeUrl.a}">打开方案A-整个原型</a><a href="${prototypeUrl.b}">打开方案B-整个原型</a></div>` : '';
+      const phone = `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}<h3>${title}</h3></header><div class="flow-stack flow-content"></div></div></div></div>`;
       return `<section id="${anchor(key)}" class="stage flow-stage" aria-labelledby="flow-title-${key}">${phone}
         <aside class="note"><span class="tag">${String(index + 1).padStart(2, '0')} · 入口演示</span><h2 id="flow-title-${key}">${title}</h2>
-          <p class="sub">${caption}</p><h3>操作与状态</h3><ul>${notes.map(note => '<li>' + note + '</li>').join('')}</ul>${links}
+          <p class="sub">${caption}</p><h3>操作与状态</h3><ul>${notes.map(note => '<li>' + note + '</li>').join('')}</ul>
           <a href="#unit-home" class="flow-home" data-open="home">↑ 返回单元学首页</a></aside></section>`;
     }).join('');
   document.querySelector('#flow-index').innerHTML = Object.entries(flows).map(([key, [title]]) =>
@@ -258,9 +248,7 @@ function resetBookViews() {
   startPractice('learn', defaults.learn);
   startPractice('review', defaults.review);
   renderHome();
-  for (const key of Object.keys(renderers)) {
-    if (key !== 'today') render(key);
-  }
+  for (const key of Object.keys(renderers)) render(key);
 }
 
 function openFlow(button) {
@@ -379,14 +367,6 @@ gallery.addEventListener('click', event => {
     render('text');
     render('settings');
     area('text').querySelector('[data-action="toggle-translation"]').focus();
-  } else if (command === 'today-a' || command === 'today-b') {
-    todayVariant = command.at(-1);
-    const frame = area('today').querySelector('iframe');
-    frame.src = prototypeUrl[todayVariant];
-    frame.title = '今日首页 · 方案 ' + todayVariant.toUpperCase();
-    for (const option of area('today').querySelectorAll('button')) {
-      option.setAttribute('aria-pressed', String(option === button));
-    }
   } else if (command === 'answer') {
     testAnswer = Number(button.dataset.index);
     render(key);
@@ -421,8 +401,6 @@ gallery.addEventListener('click', event => {
 
 renderGallery();
 resetBookViews();
-render('today');
-area('today').querySelector('[data-action="today-a"]').setAttribute('aria-pressed', 'true');
 if (location.hash && document.getElementById(location.hash.slice(1))) {
   requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView());
 }

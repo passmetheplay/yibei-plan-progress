@@ -1,5 +1,5 @@
 #flow-index{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
-#flow-index a,.flow-home,.flow-link{
+#flow-index a,.flow-home{
   display:inline-flex;align-items:center;text-decoration:none;font-size:12px;font-weight:800;color:#A4471C
 }
 #flow-index a{border:1px solid #F1D6C4;border-radius:999px;background:#FFFCF9;padding:6px 11px}
@@ -61,11 +61,7 @@
 .flow-line[aria-pressed=true]{background:#E3F7EF;color:#0B6A5C}
 .flow-line span{display:block;font-size:11px;font-weight:500;color:var(--ink-2);margin-top:4px}
 .flow-feedback{min-height:20px;font-size:12px;color:#0B7968;font-weight:800}
-.flow-today{width:412px;max-width:100%;flex:none}
-.flow-today iframe{width:100%;height:843px;border:0;border-radius:22px;display:block}
-.flow-today .flow-actions{justify-content:center;margin:0 0 8px}
-.flow-links{display:flex;flex-wrap:wrap;gap:9px 14px;margin-top:14px}
-.flow-links a{color:#A4471C;font-size:12px;font-weight:800}
+.tab:disabled{cursor:default}
 [data-open]:focus-visible,.flow-inner :is(button,a,select,input):focus-visible,#flow-index a:focus-visible{outline:2px solid #0C8270;outline-offset:2px}
 @media (max-width:455px){
   body{padding:22px 10px 42px}
@@ -77,7 +73,6 @@
   .u-data{gap:4px}
   .u-name{display:block}
   .u-name span{display:block}
-  .flow-today iframe{height:770px}
 }
 
 .flow-panel.flow-row{padding:12px 14px}
