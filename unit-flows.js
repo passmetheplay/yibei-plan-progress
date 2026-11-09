@@ -70,9 +70,9 @@ const flows = {
     '单元内的学习与复习会更新教材词记录。今日按计划单独取词和结算任务进度。'
   ]],
   text: ['学课文', '从对应单元的「学课文」进入。', [
-    '用标题下的一行选择器切换 A、B、C 或阅读栏目。正文逐句排开，点任意句听读。',
-    '显示译文和自动播放直接展开。自动播放开启时会顺序读句子，手点可以立即跳到所选句。',
-    '课文原声收在正文下方。五年级上下册可播放人教社配套音频。',
+    '顶部可以横滑切换栏目，也可以通过右侧目录跳转。正文逐句排开，点任意一句听读。',
+    '底部可以播放、暂停、开关译文和自动播放。继续播放时从当前句开头读。手点句子可直接跳读。',
+    '五年级上下册的人教社配套原声在正文末尾。',
     '五上 Unit 2 的 A、B 对话已收录原文选段。完整原文可贴入下方，按当前单元和栏目逐句点读。'
   ]],
   test: ['检测', '从底部「检测」进入。', [
@@ -99,7 +99,7 @@ let textUnit = 2;
 let selectedLine = -1;
 let selectedLesson = 'a';
 let autoStartedAudio = null;
-let autoReadingSentences = false;
+let lessonSpeech = null;
 let noReviewPreview = new URLSearchParams(location.search).get('review') === 'none';
 const importedLessons = new Map();
 let testUnit = 2;
@@ -236,76 +236,164 @@ function currentLessonLines() {
 }
 
 function renderText() {
-  const u = getUnit(textUnit);
+  const unit = getUnit(textUnit);
   const { grade, term } = book();
-  const tracks = grade === '五' ? pepLessonAudio[term][u.n] : null;
+  const tracks = grade === '五' ? pepLessonAudio[term][unit.n] : null;
   const lines = currentLessonLines();
   const settingsRow = (label, command, checked) => `<label class="reading-setting"><span>${label}</span><span class="reading-switch">
     <input type="checkbox" role="switch" data-action="${command}" ${checked ? 'checked' : ''}><span aria-hidden="true"></span></span></label>`;
-  const options = pepLessonParts.filter(({ key }) => tracks?.[key]).map(({ key, part, title, optional }) =>
+  const parts = pepLessonParts.filter(({ key }) => tracks?.[key]);
+  const tabs = parts.map(({ key, part, title }) =>
+    `<button type="button" data-action="lesson-tab" data-part="${key}" aria-pressed="${key === selectedLesson}">${part.replace('Part ', '')} ${title}</button>`).join('');
+  const options = parts.map(({ key, part, title, optional }) =>
     `<option value="${key}" ${key === selectedLesson ? 'selected' : ''}>${part} · ${title}${optional ? '（选学）' : ''}</option>`).join('');
   const rows = lines.map(([en, cn], i) =>
     `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">
-      <span class="line-count" aria-hidden="true">${i + 1}</span><div><b>${textHtml(en)}</b>
-      ${cn ? `<span class="line-translation" ${settings.translations ? '' : 'hidden'}>${textHtml(cn)}</span>` : ''}</div>
+      <span class="lesson-line-text"><b lang="en">${textHtml(en)}</b>
+      ${cn ? `<span class="line-translation" ${settings.translations ? '' : 'hidden'}>${textHtml(cn)}</span>` : ''}</span>
       <span class="line-play" aria-hidden="true">▶</span></button>`).join('');
-  return `<div class="lesson-heading"><div class="flow-eyebrow">${book().name} · Unit ${u.n}</div><h4>${u.title}</h4>
-    ${options ? `<select class="flow-select lesson-picker" data-action="choose-lesson" aria-label="课文栏目">${options}</select>` : ''}</div>
-    <div class="flow-panel reading-settings">
+  return `<div class="lesson-heading"><div class="flow-eyebrow">${book().name} · Unit ${unit.n}</div><h4 lang="en">${unit.title}</h4>
+    ${parts.length ? `<div class="lesson-chapters"><div class="lesson-tabs" role="group" aria-label="课文栏目">${tabs}</div>
+      <label class="lesson-directory"><span aria-hidden="true">☰</span><select class="lesson-picker" data-action="choose-lesson" aria-label="课文目录">${options}</select></label></div>` : ''}</div>
+    <div class="lesson-body" tabindex="0" aria-label="课文正文">
+      <div class="lesson-transcript">
+        ${lines.length ? `<p class="flow-caption">${importedLessons.has(lessonId()) ? '课文原文' : '原文选段'} · 点句子听读</p>${rows}`
+          : '<div class="lesson-empty"><p>等待接入课文原文。</p>' + action('open-lesson-import', '添加课文原文') + '</div>'}
+      </div>
+      ${tracks ? `<details class="lesson-audio"><summary>人教社课文原声</summary>
+        <audio controls controlslist="nodownload noplaybackrate noremoteplayback" preload="none" src="${tracks[selectedLesson]}"></audio>
+        <a class="lesson-source" href="${pepAudioDirectory[term]}" target="_blank" rel="noopener">人教社配套音频 ↗</a></details>` : ''}
+    </div>
+    <div class="lesson-dock">
       ${settingsRow('显示译文', 'translations', settings.translations)}
+      <button type="button" class="lesson-play" data-action="play-lesson" aria-label="播放课文" ${tracks || lines.length ? '' : 'disabled'}><span aria-hidden="true">▶</span></button>
       ${settingsRow('自动播放', 'autoplay', settings.autoPlay)}
-    </div>
-    <div class="flow-panel lesson-transcript">
-      ${lines.length ? `<p class="flow-caption">${importedLessons.has(lessonId()) ? '课文原文' : '原文选段'} · 点句子听读</p>${rows}`
-        : '<div class="lesson-empty"><p>等待接入课文原文。</p>' + action('open-lesson-import', '添加课文原文') + '</div>'}
-    </div>
-    <div class="flow-feedback" aria-live="polite"></div>
-    ${tracks ? `<details class="lesson-audio"><summary>整段课文原声</summary>
-      <audio controls controlslist="nodownload noplaybackrate noremoteplayback" preload="none" src="${tracks[selectedLesson]}"></audio>
-      <a class="lesson-source" href="${pepAudioDirectory[term]}" target="_blank" rel="noopener">人教社配套音频 ↗</a></details>` : ''}`;
+      <div class="flow-feedback" aria-live="polite"></div>
+    </div>`;
 }
 
-function selectLessonLine(index) {
+function selectLessonLine(index, follow = false) {
   selectedLine = index;
-  for (const line of area('text').querySelectorAll('[data-line]')) {
+  const content = area('text');
+  for (const line of content.querySelectorAll('[data-line]')) {
     line.setAttribute('aria-pressed', String(Number(line.dataset.line) === index));
+  }
+  if (!follow) return;
+  const current = content.querySelector('[data-line="' + index + '"]');
+  if (!current) return;
+  const body = content.querySelector('.lesson-body');
+  const view = body.getBoundingClientRect();
+  const row = current.getBoundingClientRect();
+  if (row.top < view.top || row.bottom > view.bottom) {
+    body.scrollTop += row.top - view.top;
   }
 }
 
-function stopLessonPlayback() {
-  area('text').querySelector('audio')?.pause();
-  if (autoReadingSentences && 'speechSynthesis' in window) window.speechSynthesis.cancel();
-  autoStartedAudio = null;
-  autoReadingSentences = false;
+function updateLessonPlayback() {
+  const content = area('text');
+  const button = content.querySelector('.lesson-play');
+  if (!button) return;
+  const playing = lessonSpeech ? !lessonSpeech.paused : content.querySelector('audio')?.paused === false;
+  const label = playing ? '暂停播放' : lessonSpeech?.paused ? '继续播放' : '播放课文';
+  button.setAttribute('aria-label', label);
+  button.querySelector('span').textContent = playing ? 'Ⅱ' : '▶';
 }
 
-function playLessonSentence(index) {
+function stopLessonSpeech() {
+  if (!lessonSpeech) return;
+  lessonSpeech = null;
+  window.speechSynthesis.cancel();
+}
+
+function stopLessonPlayback() {
+  stopLessonSpeech();
+  area('text').querySelector('audio')?.pause();
+  autoStartedAudio = null;
+  updateLessonPlayback();
+}
+
+function playLessonSentence(index, continuous = settings.autoPlay, automatic = settings.autoPlay) {
   const lines = currentLessonLines();
+  if (!lines[index]) return;
   stopLessonPlayback();
-  const playlist = settings.autoPlay ? lines.slice(index) : [lines[index]];
-  autoReadingSentences = settings.autoPlay;
-  selectLessonLine(index);
-  speak(playlist.map(([en]) => en), 'text', offset => selectLessonLine(index + offset));
+  selectLessonLine(index, true);
+  if (!('speechSynthesis' in window)) {
+    area('text').querySelector('.flow-feedback').textContent = '当前浏览器不支持语音播放。';
+    return;
+  }
+  const playlist = continuous ? lines.slice(index) : [lines[index]];
+  const playback = { paused: false, automatic, continuous };
+  lessonSpeech = playback;
+  updateLessonPlayback();
+  speak(playlist.map(([en]) => en), 'text', {
+    onStart: offset => {
+      if (lessonSpeech === playback) selectLessonLine(index + offset, true);
+    },
+    onDone: message => {
+      if (lessonSpeech !== playback) return;
+      lessonSpeech = null;
+      area('text').querySelector('.flow-feedback').textContent = message;
+      updateLessonPlayback();
+    }
+  });
+}
+
+function playLessonAudio(automatic) {
+  const audio = area('text').querySelector('audio');
+  if (!audio) return;
+  if (automatic) autoStartedAudio = audio;
+  const feedback = area('text').querySelector('.flow-feedback');
+  feedback.textContent = '';
+  audio.play().catch(error => {
+    if (!audio.isConnected || error.name === 'AbortError') return;
+    if (autoStartedAudio === audio) autoStartedAudio = null;
+    audio.closest('details').open = true;
+    feedback.textContent = '播放未启动，请点播放器重试。';
+    updateLessonPlayback();
+  });
 }
 
 function autoplayLesson() {
   if (!settings.autoPlay) return;
-  if (currentLessonLines().length) {
-    playLessonSentence(0);
+  if (currentLessonLines().length) playLessonSentence(0);
+  else playLessonAudio(true);
+}
+
+function toggleLessonPlayback() {
+  const content = area('text');
+  const audio = content.querySelector('audio');
+  if (audio?.paused === false) {
+    audio.pause();
     return;
   }
-  const audio = area('text').querySelector('audio');
-  if (!audio) return;
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  const feedback = area('text').querySelector('.flow-feedback');
-  feedback.textContent = '';
-  audio.closest('details').open = true;
-  autoStartedAudio = audio;
-  audio.play().catch(error => {
-    if (autoStartedAudio !== audio || error.name === 'AbortError') return;
-    autoStartedAudio = null;
-    feedback.textContent = '自动播放未启动，请点播放器播放。';
-  });
+  if (lessonSpeech) {
+    if (lessonSpeech.paused) {
+      playLessonSentence(selectedLine, lessonSpeech.continuous, lessonSpeech.automatic);
+      return;
+    }
+    lessonSpeech = { ...lessonSpeech, paused: true };
+    window.speechSynthesis.cancel();
+    content.querySelector('.flow-feedback').textContent = '已暂停';
+    updateLessonPlayback();
+  } else if (currentLessonLines().length) {
+    playLessonSentence(Math.max(0, selectedLine), true, false);
+  } else {
+    playLessonAudio(false);
+  }
+}
+
+function changeLesson(next, focusSelector) {
+  if (next === selectedLesson) return;
+  stopLessonPlayback();
+  selectedLesson = next;
+  selectedLine = -1;
+  render('text');
+  const content = area('text');
+  const tabs = content.querySelector('.lesson-tabs');
+  const selected = tabs.querySelector('[aria-pressed="true"]');
+  if (selected) tabs.scrollLeft = selected.offsetLeft - tabs.offsetLeft;
+  content.querySelector(focusSelector)?.focus({ preventScroll: true });
+  autoplayLesson();
 }
 
 const renderers = {
@@ -427,10 +515,14 @@ function openFlow(button) {
   if (key === 'text') autoplayLesson();
 }
 
-function speak(lines, key, onLineStart) {
+function speak(lines, key, { onStart, onDone } = {}) {
   const feedback = area(key).querySelector('.flow-feedback');
+  const finish = message => {
+    if (onDone) onDone(message);
+    else feedback.textContent = message;
+  };
   if (!('speechSynthesis' in window)) {
-    feedback.textContent = '当前浏览器不支持语音播放。';
+    finish('当前浏览器不支持语音播放。');
     return;
   }
   window.speechSynthesis.cancel();
@@ -438,14 +530,11 @@ function speak(lines, key, onLineStart) {
     const audio = new SpeechSynthesisUtterance(line);
     audio.lang = 'en-US';
     audio.rate = .85;
-    if (onLineStart) {
-      audio.onstart = () => {
-        if (feedback.isConnected) onLineStart(index);
-      };
-    }
-    if (index === lines.length - 1) audio.onend = () => { feedback.textContent = '播放完成'; };
+    if (onStart) audio.onstart = () => onStart(index);
+    if (index === lines.length - 1) audio.onend = () => finish('播放完成');
     audio.onerror = event => {
-      if (event.error !== 'canceled' && event.error !== 'interrupted') feedback.textContent = '当前设备无法播放英文语音。';
+      if (event.error === 'canceled' || event.error === 'interrupted') return;
+      finish('当前设备无法播放英文语音。');
     };
     window.speechSynthesis.speak(audio);
   });
@@ -495,22 +584,16 @@ gallery.addEventListener('change', event => {
     render('test');
     area('test').querySelector('[data-action="test-unit"]').focus();
   } else if (command === 'choose-lesson') {
-    stopLessonPlayback();
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    selectedLesson = value;
-    selectedLine = -1;
-    render('text');
-    area('text').querySelector('.lesson-picker').focus({ preventScroll: true });
-    autoplayLesson();
+    changeLesson(value, '.lesson-picker');
   } else if (command === 'autoplay') {
     settings.autoPlay = event.target.checked;
     if (settings.autoPlay) autoplayLesson();
     else {
       autoStartedAudio?.pause();
-      if (autoReadingSentences && 'speechSynthesis' in window) window.speechSynthesis.cancel();
       autoStartedAudio = null;
-      autoReadingSentences = false;
+      if (lessonSpeech?.automatic) stopLessonSpeech();
       area('text').querySelector('.flow-feedback').textContent = '';
+      updateLessonPlayback();
     }
   } else if (command === 'translations') {
     settings.translations = event.target.checked;
@@ -590,6 +673,10 @@ gallery.addEventListener('click', event => {
     const importer = document.querySelector('#entry-text .lesson-import');
     importer.open = true;
     importer.querySelector('textarea').focus();
+  } else if (command === 'lesson-tab') {
+    changeLesson(button.dataset.part, '.lesson-tabs [aria-pressed="true"]');
+  } else if (command === 'play-lesson') {
+    toggleLessonPlayback();
   } else if (command === 'say-line') {
     playLessonSentence(Number(button.dataset.line));
   } else if (command === 'answer') {
@@ -659,13 +746,17 @@ gallery.addEventListener('click', event => {
   }
 }, true);
 
-gallery.addEventListener('play', event => {
-  if (event.target.tagName !== 'AUDIO') return;
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  autoReadingSentences = false;
-  selectLessonLine(-1);
-  area('text').querySelector('.flow-feedback').textContent = '';
-}, true);
+for (const eventName of ['play', 'pause', 'ended']) {
+  gallery.addEventListener(eventName, event => {
+    if (event.target !== area('text').querySelector('audio')) return;
+    if (eventName === 'play') {
+      stopLessonSpeech();
+      selectLessonLine(-1);
+      area('text').querySelector('.flow-feedback').textContent = '';
+    }
+    updateLessonPlayback();
+  }, true);
+}
 
 window.addEventListener('popstate', () => {
   if (location.hash !== '#entry-text') {
