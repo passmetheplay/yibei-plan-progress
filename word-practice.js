@@ -37,29 +37,31 @@ function practiceMarkup(key, session) {
   const { entries, index, step, selected, used, passed, feedback, error, fromDue, unitNumber } = session;
   const item = entries[index];
   const mode = key === 'learn' ? '学词' : '复习词';
-  const range = unitNumber ? 'Unit ' + unitNumber : '全部到期词';
+  const range = session.plan ? '今日计划' : unitNumber ? 'Unit ' + unitNumber : '全部到期词';
   const back = fromDue ? 'due' : 'home';
+  const backLabel = session.plan ? '返回今日' : fromDue ? '返回到期复习' : '返回单元学';
   if (!item) {
     const body = entries.length ? '<strong>' + index + ' / ' + entries.length + '</strong><p>词已' + (key === 'learn' ? '学完' : '复习') + '</p>' : '<p>可以返回单元列表选择其他入口。</p>';
     return `<div class="flow-panel practice-summary"><div class="flow-eyebrow">${range} · ${mode}</div><h4>${entries.length ? '本轮完成' : '本轮没有单词'}</h4>${body}</div>
-      <div class="flow-footer">${open(back, fromDue ? '返回到期列表' : '返回单元学', '', 'primary')}</div>`;
+      <div class="flow-footer">${open(back, backLabel, '', 'primary')}</div>`;
   }
 
   const { word, unit } = item;
   const example = wordExamples[word.en];
   const letters = [...word.en.replace(/[^a-z]/gi, '').toLowerCase()].reverse();
   const next = action('advance-step', '下一步 · ' + practiceSteps[step + 1], 'primary');
+  const listen = action('say-card', '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9H4zm12 0a4 4 0 0 1 0 6m2-8a7 7 0 0 1 0 10"/></svg>听发音', 'practice-listen');
   let panel, footer;
   if (step === 0) {
     panel = `<div class="flow-panel practice-card">
       <div class="flow-word">${word.en}</div>${example ? '<p>' + example[0] + '</p>' : ''}
-      <div class="flow-actions">${action('say-card', '听发音')}</div><h4>${word.cn}</h4>
+      <div class="flow-actions">${listen}</div><h4>${word.cn}</h4>
       ${example ? `<div class="practice-example"><b>${example[1]}</b><p>${example[2]}</p></div>` : ''}
     </div>`;
     footer = next;
   } else if (step === 1) {
     panel = `<div class="flow-panel practice-card"><div class="flow-word">${word.en}</div>${example ? '<p>' + example[0] + '</p>' : ''}
-      <p>听标准发音，再跟读一遍。</p><div class="flow-actions">${action('say-card', '标准发音')}${action('record-voice', session.recording ? '停止录音' : session.audioRequest ? '取消录音' : '录音跟读')}${session.audioUrl ? action('play-voice', '播放我的发音') : ''}</div></div>`;
+      <p>听发音，再跟读一遍。</p><div class="flow-actions">${listen}${action('record-voice', session.recording ? '停止录音' : session.audioRequest ? '取消录音' : '录音跟读')}${session.audioUrl ? action('play-voice', '播放我的发音') : ''}</div></div>`;
     footer = next;
   } else if (step === 2) {
     const options = practiceOptions(word, unit, index);
@@ -67,7 +69,7 @@ function practiceMarkup(key, session) {
       ${options.map((meaning, i) => `<button type="button" class="flow-option ${i === selected ? 'selected' : ''}" data-action="choose-meaning" data-index="${i}" aria-pressed="${i === selected}" ${passed ? 'disabled' : ''}>${meaning}</button>`).join('')}</div>`;
     footer = passed ? next : `<button type="button" class="flow-button primary" data-action="check-step" ${selected === null ? 'disabled' : ''}>确认答案</button>`;
   } else if (step === 3) {
-    panel = `<h4 class="practice-title">听音拼词</h4><div class="flow-actions">${action('say-card', '播放单词')}</div>
+    panel = `<h4 class="practice-title">听音拼词</h4><div class="flow-actions">${listen}</div>
       <div class="practice-letters" aria-label="拼词区">${letters.map((_, i) => used[i] === undefined
         ? '<span class="slot">·</span>'
         : `<button type="button" class="slot" data-action="remove-letter" data-index="${i}" aria-label="撤回 ${letters[used[i]]}" ${passed ? 'disabled' : ''}>${letters[used[i]]}</button>`).join('')}</div>
@@ -78,8 +80,8 @@ function practiceMarkup(key, session) {
     panel = `<h4 class="practice-title">根据中文写单词</h4><form id="write-${key}" class="flow-panel" data-write="${key}">
       <label><b>${word.cn}</b><input class="practice-input" name="answer" placeholder="输入英文" autocomplete="off" autocapitalize="off" spellcheck="false" ${passed ? 'readonly' : ''} required></label></form>`;
     const endLabel = key === 'review' ? '完成复习' : '完成本轮';
-    footer = passed ? action('complete-word', index + 1 < entries.length ? '下一个词 →' : endLabel, 'primary')
-      : `<button type="submit" form="write-${key}" class="flow-button primary">提交</button>`;
+    footer = passed ? action('complete-word', index + 1 < entries.length ? '下一个词' : endLabel, 'primary')
+      : `<button type="submit" form="write-${key}" class="flow-button primary">检查拼写</button>`;
   }
 
   return `<div class="practice-progress"><span>${range} · ${mode}</span><span>第 ${index + 1} / ${entries.length} 词</span></div>

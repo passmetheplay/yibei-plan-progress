@@ -138,7 +138,8 @@
     .note{max-width:412px;width:100%}
   }
 </style>
-<link rel="stylesheet" href="unit-flows.css?v=9">
+<link rel="stylesheet" href="unit-flows.css?v=10">
+<link rel="stylesheet" href="record-view.css?v=1">
 </head>
 <body>
 <script>
@@ -186,14 +187,13 @@
         <div class="due">
           <span class="dot"></span>
           <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
-          <button class="go task-guide guide-review" data-open="due"><span>去复习</span><span class="guide-arrow" aria-hidden="true">›</span></button>
+          <button class="go task-guide guide-review" data-open="due"><span>去复习</span></button>
         </div>
 
-        <div class="sec"><h3>单元<span>6 个</span></h3><button class="entry" data-open="records">学习记录 ›</button></div>
+        <div class="sec"><h3>单元<span>6 个</span></h3><button class="entry" data-open="records">学习记录 <span aria-hidden="true">›</span></button></div>
 
         <div class="units" id="units"></div>
 
-        <div class="tip">学词和复习完成后会更新学习记录。词表里的单词可点按发音。</div>
       </div>
 
       <nav class="tabbar" aria-label="底部导航">
@@ -219,10 +219,10 @@
     <h3>页面布局</h3>
     <ul>
       <li><b>圆圈进度</b>：38px 圆环，百分比直接写在圈里，取代横条，整行矮一截</li>
-      <li><b>数据在左</b>：已学 / 掌握 / 未学横排，跟单元名同一列对齐</li>
+      <li><b>数据在左</b>：已学 / 掌握横排，跟单元名同一列对齐</li>
       <li><b>三个动作在右</b>：学词、复习词、学课文，固定位置不跳动</li>
       <li><b>教材卡</b>：从右上角切换教材，先选年级，再选学期</li>
-      <li><b>有到期词</b>时，任务条和对应单元的复习按钮沿用「今日任务」的呼吸和扫光</li>
+      <li><b>有到期词</b>时，任务条沿用「今日任务」的呼吸和扫光，对应单元静态强调</li>
       <li><b>无到期词</b>时，任务条收起，优先引导已学比例最高单元的「学课文」</li>
     </ul>
 
@@ -234,14 +234,15 @@
     </div>
 
     <div class="foot">圆圈颜色：100% 薄荷绿、其它橙色、0% 浅灰空圈。<br>
-      点读不单独占按钮，在单词列表里长按单词发音。</div>
+      在学习记录里点单词听发音。</div>
   </aside>
 
 </div>
 
 <main id="flow-gallery" aria-label="单元学入口演示"></main>
 <script src="pep-lessons.js?v=1"></script>
-<script src="word-practice.js?v=3"></script>
-<script src="unit-flows.js?v=10"></script>
+<script src="word-practice.js?v=4"></script>
+<script src="record-view.js?v=1"></script>
+<script src="unit-flows.js?v=11"></script>
 </body>
 </html>

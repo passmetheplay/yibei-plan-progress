@@ -1,0 +1,22 @@
+.word-record{display:grid;gap:9px;color:#2A1F1A}
+.word-record .record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.word-record .record-head h4{font-size:19px;line-height:1.25;margin:0}
+.word-record .record-head p{font-size:11px;color:#756459;margin:2px 0 0}
+.word-record select{min-height:44px;max-width:160px;border:1px solid #ECDACD;border-radius:11px;padding:0 8px;background:#FFFCF8;color:inherit;font:inherit;font-size:12px;font-weight:800}
+.word-record .record-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border-radius:11px;background:#F2E7DE;padding:3px}
+.word-record .record-filters button{min-height:40px;border:0;border-radius:8px;padding:5px 0;color:#6B594D;background:none;font:inherit;font-size:11px;white-space:nowrap;font-weight:800;cursor:pointer}
+.word-record .record-filters button[aria-pressed=true]{color:#A4471C;background:#FFF;box-shadow:0 1px 4px #4C2E1315}
+.word-record .record-results{padding:0 12px;background:#FFF;border:1px solid #F3E6DA;border-radius:15px}
+.word-record .record-results h4{padding:11px 0;margin:0;border-bottom:1px solid #F3E6DA;font-size:13px}
+.word-record .record-hint{font-size:11px;color:#756459;margin:8px 0 0}
+.word-record .record-words{padding:0;margin:0;list-style:none}
+.word-record li+li{border-top:1px solid #F3E6DA}
+.word-record :is(.record-row,.flow-sound){display:grid;width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;min-height:44px;padding:8px 1px;text-align:left;font-size:12px}
+.word-record .flow-sound{border:0;background:none;font-family:inherit;color:inherit;cursor:pointer}
+.word-record li b{overflow-wrap:anywhere}
+.word-record li span{color:#756459}
+.word-record li em{font-size:10px;color:#356653;background:#E8F6EF;padding:3px 5px;border-radius:5px;font-style:normal;white-space:nowrap}
+.word-record li em[data-status="0"]{color:#6F5B4C;background:#F2E9DF}
+.word-record .record-empty{padding:22px 0;text-align:center;color:#756459;font-size:12px}
+.word-record .record-feedback{margin:0;color:#126C5B;font-size:12px}
+.word-record .record-feedback:empty{display:none}

@@ -94,26 +94,12 @@
 .flow-stage .note ol{margin:0;padding-left:19px;font-size:12px;line-height:1.7;color:var(--ink-2)}
 .flow-stage .note ol li+li{margin-top:4px}
 .flow-stack{min-width:0}
-.flow-footer{align-self:end;display:grid;gap:6px;margin-top:auto}
+.flow-footer{align-self:stretch;display:grid;gap:6px;margin-top:auto}
 .flow-footer .flow-button{width:100%;min-height:44px;text-align:center}
 .flow-page-heading h4{font-size:22px;letter-spacing:-.6px;margin-bottom:4px}
 .flow-grade-choice,.flow-term-choice{min-height:48px}
 .flow-caption{color:#756459;margin:0}
 .flow-stage .flow-select{max-width:100%;width:100%}
-.record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
-.record-head h4{font-size:19px;line-height:1.25;letter-spacing:-.4px}
-.record-head p{font-size:11px;color:#756459}
-.record-head .flow-select{min-width:83px;width:auto}
-.record-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border-radius:11px;background:#F2E7DE;padding:3px}
-.record-filters button{border-radius:8px;padding:8px 1px;color:#6B594D;font-size:12px;white-space:nowrap;font-weight:800}
-.record-filters button[aria-pressed=true]{color:#A4471C;background:#FFF;box-shadow:0 1px 4px #4C2E1315}
-.record-results{padding:0 12px}
-.record-results h4{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:11px 0;margin:0;border-bottom:1px solid #F3E6DA;font-size:13px}
-.record-results h4 small{white-space:nowrap;color:#756459;font-size:10px}
-.record-empty{padding:27px 0;text-align:center;color:#756459;font-size:12px}
-.record-empty b{display:block;color:var(--ink);font-size:14px}
-.record-results .flow-sound em{padding:3px 5px;border-radius:5px;background:#E8F6EF;color:#356653}
-.record-results .flow-sound em.unlearned{background:#F2E9DF;color:#6F5B4C}
 .practice-progress{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#756459;font-weight:800}
 .practice-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 .practice-steps span{text-align:center;border-radius:7px;padding:6px 1px;background:#F2E7DE;color:#6D594B;font-size:12px;font-weight:800}
@@ -147,7 +133,10 @@
 .flow-content:has(.flow-footer){flex:1;display:flex;flex-direction:column}
 .flow-feedback:empty{display:none}
 .u-acts{display:grid;grid-template-columns:repeat(3,45px)}
-.u-acts button{padding-inline:3px}
+.u-acts button{padding-inline:3px;height:34px}
+.u-acts .review-ready{background:#E9FBF6;color:#126C5B;border-color:#9BD8CA}
+#unit-home .sec .entry{min-height:38px;padding-inline:6px}
+#unit-home .due .go{min-height:36px}
 @media(max-width:375px){
   .u-acts{grid-template-columns:repeat(3,39px)}
   .record-filters button{font-size:10px}
@@ -168,7 +157,6 @@
 }
 .u-acts .task-guide{padding-inline:2px}
 .task-guide span{position:relative;z-index:2}
-.task-guide .guide-arrow{font-size:8px;animation:task-guide-arrow 1.8s ease-in-out infinite}
 .task-guide::after{
   content:"";position:absolute;inset:0 auto 0 0;width:24px;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgb(255 255 255 / .62),transparent);
@@ -180,9 +168,8 @@
   72%{transform:scale(1.015)}
 }
 @keyframes task-guide-sweep{0%{transform:translateX(-26px)}34%,100%{transform:translateX(150px)}}
-@keyframes task-guide-arrow{0%,100%{transform:none}34%{transform:translateX(3px)}60%{transform:none}}
 @media(prefers-reduced-motion:reduce){
-  .task-guide,.task-guide .guide-arrow,.task-guide::after{animation:none}
+  .task-guide,.task-guide::after{animation:none}
 }
 .home-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;border-radius:11px;background:#F6EAE0;padding:4px}
 .home-preview button{padding:8px 5px;border-radius:7px;color:#705D51;font-size:12px;font-weight:800}
@@ -200,13 +187,7 @@
 .lesson-heading .flow-eyebrow{margin-bottom:2px}
 .lesson-heading h4{font-size:18px;line-height:1.25}
 .lesson-chapters{display:flex;gap:8px;align-items:center;margin-top:5px;border-bottom:1px solid #EBDDCF}
-.lesson-tabs{display:flex;min-width:0;flex:1;gap:14px;overflow-x:auto;scrollbar-width:none}
-.lesson-tabs button{flex:none;white-space:nowrap;border-bottom:2px solid transparent;padding:9px 1px 7px;font-size:12px;font-weight:750;color:#76685C}
-.lesson-tabs button[aria-pressed=true]{border-color:#158370;color:#126C5B}
-.lesson-tabs button:focus-visible{outline-offset:-2px}
-.lesson-directory{position:relative;display:grid;flex:none;place-items:center;width:31px;height:31px;border:1px solid #EBDDCF;border-radius:8px;background:#FFFCF8;color:#695245;font-size:16px}
-.lesson-directory:focus-within{outline:2px solid #0C8270;outline-offset:2px}
-.lesson-directory select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.lesson-chapters select{width:100%;min-height:40px}
 .lesson-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:6px 0}
 .lesson-body:focus-visible{outline:2px solid #0C8270;outline-offset:-2px}
 .lesson-transcript .flow-caption{padding:4px 3px 2px;font-size:11px}
@@ -222,7 +203,6 @@
 .lesson-play{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#0B7968;color:#FFF;font-size:16px;font-weight:900}
 .lesson-play:disabled{background:#EDE1D6;color:#887669;cursor:default}
 .lesson-empty{padding:16px 13px}
-.lesson-empty .flow-button{margin-top:10px}
 .lesson-audio{padding:8px 2px}
 .lesson-audio summary,.lesson-import summary{color:#A4471C;font-size:12px;font-weight:800;cursor:pointer}
 .lesson-audio audio{display:block;width:100%;height:34px;margin:6px 0}
@@ -239,4 +219,7 @@ body.is-embedded{padding:0;background:var(--bg)}
 .is-embedded .stage .phone{width:100%;max-width:none;padding:0;border-radius:0;background:none;box-shadow:none}
 .is-embedded .stage .screen{width:100%;min-height:100dvh;border-radius:0}
 .is-embedded #entry-text .screen{height:100dvh}
-.is-embedded .lesson-import{margin:5px 0 8px}
+.is-embedded.is-plan-practice .flow-nav{display:none}
+.practice-listen{display:inline-flex;align-items:center;gap:5px}
+.practice-listen svg{width:15px;height:15px}
+.stage :is(h2,h3)[tabindex="-1"]:focus{outline:none}

@@ -70,7 +70,7 @@ const flows = {
     '单元内的学习与复习会更新教材词记录。今日按计划单独取词和结算任务进度。'
   ]],
   text: ['学课文', '从对应单元的「学课文」进入。', [
-    '顶部可以横滑切换栏目，也可以通过右侧目录跳转。正文逐句排开，点任意一句听读。',
+    '顶部下拉切换课文栏目。正文逐句排开，点任意一句听读。',
     '底部可以播放、暂停、开关译文和自动播放。继续播放时从当前句开头读。手点句子可直接跳读。',
     '五年级上下册的人教社配套原声在正文末尾。',
     '五上 Unit 2 的 A、B 对话已收录原文选段。完整原文可贴入下方，按当前单元和栏目逐句点读。'
@@ -82,6 +82,12 @@ const defaults = { learn: 2, review: 1, text: 2 };
 const stage = document.querySelector('#unit-home');
 const gallery = document.querySelector('#flow-gallery');
 const embedded = document.body.classList.contains('is-embedded');
+const requestedPractice = new URLSearchParams(location.search).get('practice');
+const plannedPractice = embedded && ['learn', 'review'].includes(requestedPractice);
+if (plannedPractice) {
+  document.body.classList.add('is-plan-practice');
+  stage.hidden = true;
+}
 const statusbar = stage.querySelector('.statusbar').outerHTML;
 const cover = stage.querySelector('.cover img');
 const originalCover = cover.src;
@@ -89,7 +95,7 @@ let activeBook = books[0];
 let pendingGrade = null;
 let pendingTerm = null;
 let recordUnit = 0;
-let recordStatus = '全部';
+let recordStatus = 0;
 let textUnit = 2;
 let selectedLine = -1;
 let selectedLesson = 'a';
@@ -140,19 +146,18 @@ function renderHome() {
     const left = u.words.length - u.learned;
     const canReview = !noReviewPreview && u.due > 0;
     const guideLesson = u === lessonGuide;
-    const guideArrow = '<span class="guide-arrow" aria-hidden="true">›</span>';
     const pct = Math.round(u.learned / u.words.length * 100);
     const color = left === 0 ? '#1FBFA4' : pct === 0 ? '#E9DED4' : '#FF7A45';
     return `<div class="unit">
       <div class="ring ${left === 0 ? 'full' : ''}" style="--p:${pct};--c:${color}"><span>${pct}%</span></div>
       <div class="u-left">
         <div class="u-top"><div class="u-name"><b>Unit ${u.n}</b><span>${u.title}</span></div></div>
-        <div class="u-data"><span>已学 <b>${u.learned}/${u.words.length}</b></span><span class="m">掌握 <b>${u.mastered}</b></span><span class="o">未学 <b>${left}</b></span></div>
+        <div class="u-data"><span>已学 <b>${u.learned}/${u.words.length}</b></span><span class="m">掌握 <b>${u.mastered}</b></span></div>
       </div>
       <div class="u-acts">
         <button type="button" class="b-learn" data-open="learn" data-unit="${u.n}" ${left ? '' : 'disabled'}>${left ? '学词' : '已学完'}</button>
-        <button type="button" class="b-review${canReview ? ' task-guide guide-review' : ''}" data-open="review" data-unit="${u.n}" ${canReview ? '' : 'disabled'}><span>复习词</span>${canReview ? guideArrow : ''}</button>
-        <button type="button" class="b-text${guideLesson ? ' task-guide guide-lesson' : ''}" data-open="text" data-unit="${u.n}"><span>学课文</span>${guideLesson ? guideArrow : ''}</button>
+        <button type="button" class="b-review${canReview ? ' review-ready' : ''}" data-open="review" data-unit="${u.n}" ${canReview ? '' : 'disabled'}><span>复习词</span></button>
+        <button type="button" class="b-text${guideLesson ? ' task-guide guide-lesson' : ''}" data-open="text" data-unit="${u.n}"><span>学课文</span></button>
       </div>
     </div>`;
   }).join('');
@@ -173,6 +178,12 @@ function startPractice(key, n, fromDue = false) {
 
 function completePracticeWord(key, session) {
   const { unit, word, offset } = session.entries[session.index];
+  if (session.plan) {
+    session.index++;
+    resetPracticeStep(session);
+    window.parent.postMessage({type:'wordclass-plan-word', index:session.index - 1}, location.origin);
+    return;
+  }
   if (key === 'learn') unit.learned = Math.max(unit.learned, offset + 1);
   if (key === 'review') {
     unit.reviewedWords.add(word);
@@ -187,8 +198,8 @@ function completePracticeWord(key, session) {
 function renderBookPicker() {
   const grade = pendingGrade;
   const heading = grade ? grade + '年级 · 选择学期' : '选择年级';
-  const intro = `<div class="flow-page-heading"><div class="flow-eyebrow">第 ${grade ? '2' : '1'} 步 / 共 2 步</div>
-    <h4>${heading}</h4><p class="flow-caption">人教 PEP 版 · ${grade ? '选中后确认切换' : '选中后进入学期选择'}</p></div>`;
+  const intro = `<div class="flow-page-heading"><div class="flow-eyebrow">${grade ? '2' : '1'} / 2</div>
+    <h4>${heading}</h4></div>`;
   if (!grade) {
     return intro + `<div class="flow-choice">${grades.map(value => `<button type="button" class="flow-option flow-grade-choice ${value === book().grade ? 'selected' : ''}" data-action="choose-grade" data-grade="${value}">
       <span>${value}年级</span><small>${value === book().grade ? '当前年级　' : ''}›</small></button>`).join('')}</div>`;
@@ -203,18 +214,12 @@ function renderBookPicker() {
 }
 
 function renderRecords() {
-  const units = recordUnit ? [getUnit(recordUnit)] : book().units;
+  const { name, units } = book();
   const words = units.flatMap(u => u.words.map((word, index) => ({
-    ...word, status: index < u.mastered ? '已掌握' : u.reviewedWords.has(word) ? '已复习' : index < u.learned ? '已学' : '未学'
-  }))).filter(word => recordStatus === '全部' || word.status === recordStatus || (recordStatus === '已学' && word.status !== '未学') || (recordStatus === '已复习' && word.status === '已掌握'));
-  const filters = ['全部', '已学', '已复习', '已掌握', '未学'].map(status => `<button type="button" data-action="record-status" data-status="${status}" aria-pressed="${recordStatus === status}">${status}</button>`).join('');
-  const range = `<select class="flow-select" data-action="record-unit" aria-label="选择单元"><option value="0">全书</option>${book().units.map(unit =>
-    `<option value="${unit.n}" ${recordUnit === unit.n ? 'selected' : ''}>Unit ${unit.n}</option>`).join('')}</select>`;
-  return `<div class="record-head"><div><h4>${book().name}</h4><p>人教 PEP 版</p></div>${range}</div>
-    <div class="record-filters" aria-label="学习状态">${filters}</div>
-    <div class="flow-panel record-results"><h4 aria-live="polite"><span>${recordUnit ? 'Unit ' + recordUnit : '全书'} · ${recordStatus} · ${words.length} 词</span><small>按单元顺序</small></h4>
-    ${words.length ? `<div class="flow-list"><ul class="flow-words">${words.map(word => `<li><button type="button" class="flow-sound" data-action="say-word"><b>${word.en}</b><span>${word.cn}</span><em class="${word.status === '未学' ? 'unlearned' : ''}">${word.status}</em></button></li>`).join('')}</ul></div>` : '<div class="record-empty"><b>暂无匹配单词</b>可以换个状态或单元再看</div>'}</div>
-    <div class="flow-feedback" aria-live="polite"></div>`;
+    ...word, unit: u.n, status: index < u.mastered ? 3 : u.reviewedWords.has(word) ? 2 : index < u.learned ? 1 : 0
+  })));
+  return wordRecordView({title: name, subtitle: '人教 PEP 版', scope: '全书', units: units.map(u => u.n),
+    words, unit: recordUnit, filter: recordStatus, playable: true});
 }
 
 const lessonId = () => `${book().name}/${textUnit}/${selectedLesson}`;
@@ -235,8 +240,6 @@ function renderText() {
   const settingsRow = (label, command, checked) => `<label class="reading-setting"><span>${label}</span><span class="reading-switch">
     <input type="checkbox" role="switch" data-action="${command}" ${checked ? 'checked' : ''}><span aria-hidden="true"></span></span></label>`;
   const parts = pepLessonParts.filter(({ key }) => tracks?.[key]);
-  const tabs = parts.map(({ key, part, title }) =>
-    `<button type="button" data-action="lesson-tab" data-part="${key}" aria-pressed="${key === selectedLesson}">${part.replace('Part ', '')} ${title}</button>`).join('');
   const options = parts.map(({ key, part, title, optional }) =>
     `<option value="${key}" ${key === selectedLesson ? 'selected' : ''}>${part} · ${title}${optional ? '（选学）' : ''}</option>`).join('');
   const rows = lines.map(([en, cn], i) =>
@@ -245,14 +248,13 @@ function renderText() {
       ${cn ? `<span class="line-translation" ${settings.translations ? '' : 'hidden'}>${textHtml(cn)}</span>` : ''}</span>
       <span class="line-play" aria-hidden="true">▶</span></button>`).join('');
   return `<div class="lesson-heading"><div class="flow-eyebrow">${book().name} · Unit ${unit.n}</div><h4 lang="en">${unit.title}</h4>
-    ${parts.length ? `<div class="lesson-chapters"><div class="lesson-tabs" role="group" aria-label="课文栏目">${tabs}</div>
-      <label class="lesson-directory"><span aria-hidden="true">☰</span><select class="lesson-picker" data-action="choose-lesson" aria-label="课文目录">${options}</select></label></div>` : ''}</div>
+    ${parts.length ? `<div class="lesson-chapters"><select class="lesson-picker flow-select" data-action="choose-lesson" aria-label="课文目录">${options}</select></div>` : ''}</div>
     <div class="lesson-body" tabindex="0" aria-label="课文正文">
       <div class="lesson-transcript">
-        ${lines.length ? `<p class="flow-caption">${importedLessons.has(lessonId()) ? '课文原文' : '原文选段'} · 点句子听读</p>${rows}`
-          : '<div class="lesson-empty"><p>等待接入课文原文。</p>' + action('open-lesson-import', '添加课文原文') + '</div>'}
+        ${lines.length ? `<p class="flow-caption">${importedLessons.has(lessonId()) ? '课文原文' : '原文选段'}</p>${rows}`
+          : `<p class="lesson-empty">${tracks ? '本节可听原声' : '本节课文暂未收录'}</p>`}
       </div>
-      ${tracks ? `<details class="lesson-audio"><summary>人教社课文原声</summary>
+      ${tracks ? `<details class="lesson-audio"><summary>整段原声</summary>
         <audio controls controlslist="nodownload noplaybackrate noremoteplayback" preload="none" src="${tracks[selectedLesson]}"></audio>
         <a class="lesson-source" href="${pepAudioDirectory[term]}" target="_blank" rel="noopener">人教社配套音频 ↗</a></details>` : ''}
     </div>
@@ -381,9 +383,6 @@ function changeLesson(next, focusSelector) {
   selectedLine = -1;
   render('text');
   const content = area('text');
-  const tabs = content.querySelector('.lesson-tabs');
-  const selected = tabs.querySelector('[aria-pressed="true"]');
-  if (selected) tabs.scrollLeft = selected.offsetLeft - tabs.offsetLeft;
   content.querySelector(focusSelector)?.focus({ preventScroll: true });
   autoplayLesson();
 }
@@ -394,8 +393,8 @@ const renderers = {
     const units = dueUnits();
     if (!units.length) return '<div class="flow-panel"><h4>今天没有到期词</h4><p>可以返回单元列表，选一个单元学新词。</p></div>';
     return `<div class="flow-panel"><div class="flow-eyebrow">${book().name}</div><h4>今天有 ${count(units, 'due')} 词到期</h4><p>来自 ${units.length} 个单元</p></div>
-      ${units.map(u => `<div class="flow-panel flow-row"><div><b>Unit ${u.n}</b> <small>${u.title} · ${u.due} 词</small></div>${open('review', '开始', `data-unit="${u.n}" data-due`)}</div>`).join('')}
-      <div class="flow-actions">${open('review', '复习全部到期词', 'data-unit="0" data-due', 'mint')}</div>`;
+      ${units.map(u => `<div class="flow-panel flow-row"><div><b>Unit ${u.n}</b> <small>${u.title}</small></div>${open('review', '复习 ' + u.due + ' 词', `data-unit="${u.n}" data-due`)}</div>`).join('')}
+      <div class="flow-footer">${open('review', '复习全部 ' + count(units, 'due') + ' 词', 'data-unit="0" data-due', 'mint')}</div>`;
   },
   records: renderRecords,
   learn: () => practiceMarkup('learn', practice.learn),
@@ -449,7 +448,7 @@ function renderGallery() {
           <button type="submit" class="flow-button">用于当前课文</button>
           <p class="lesson-import-feedback" aria-live="polite"></p>
         </form></details>` : '';
-      const phone = `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}${previous}<h3${embedded ? ' id="flow-title-' + key + '"' : ''}>${title}</h3></header><div class="flow-stack flow-content"></div>${embedded ? importer : ''}</div></div></div>`;
+      const phone = `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}${previous}<h3${embedded ? ' id="flow-title-' + key + '"' : ''}>${title}</h3></header><div class="flow-stack flow-content"></div></div></div></div>`;
       const note = embedded ? '' : `<aside class="note"><span class="tag">${String(index + 1).padStart(2, '0')} · 入口演示</span><h2 id="flow-title-${key}">${title}</h2>
         <p class="sub">${caption}</p><h3>操作与状态</h3><ol>${notes.map(note => '<li>' + note + '</li>').join('')}</ol>${importer}
         <a href="#unit-home" class="flow-home" data-open="home">↑ 返回单元学首页</a></aside>`;
@@ -462,7 +461,7 @@ function renderGallery() {
 function resetBookViews() {
   stopLessonPlayback();
   recordUnit = 0;
-  recordStatus = '全部';
+  recordStatus = 0;
   textUnit = getUnit(defaults.text)?.n ?? book().units[0].n;
   selectedLine = -1;
   selectedLesson = 'a';
@@ -486,6 +485,10 @@ function stopUnitAudio() {
 
 function openFlow(button) {
   const key = button.dataset.open;
+  if (plannedPractice && key === 'home') {
+    window.parent.postMessage({type:'wordclass-plan-back'}, location.origin);
+    return;
+  }
   stopUnitAudio();
   if (key === 'book') {
     pendingGrade = null;
@@ -615,11 +618,11 @@ gallery.addEventListener('click', event => {
     resetBookViews();
     show('home');
   } else if (command === 'record-status') {
-    recordStatus = button.dataset.status;
+    recordStatus = Number(button.dataset.status);
     render(key);
     area(key).querySelector('[aria-pressed="true"]').focus();
   } else if (command === 'say-word') {
-    speak([button.querySelector('b').textContent], key);
+    speakRecordWord(button.querySelector('b').textContent, area('records').querySelector('.record-feedback'));
   } else if (command === 'say-card') {
     speak([session.entries[session.index].word.en], key);
   } else if (command === 'record-voice') {
@@ -659,12 +662,6 @@ gallery.addEventListener('click', event => {
     completePracticeWord(key, session);
     render(key);
     area(key).querySelector('.flow-footer button').focus({ preventScroll: true });
-  } else if (command === 'open-lesson-import') {
-    const importer = document.querySelector('#entry-text .lesson-import');
-    importer.open = true;
-    importer.querySelector('textarea').focus();
-  } else if (command === 'lesson-tab') {
-    changeLesson(button.dataset.part, '.lesson-tabs [aria-pressed="true"]');
   } else if (command === 'play-lesson') {
     toggleLessonPlayback();
   } else if (command === 'say-line') {
@@ -716,7 +713,7 @@ gallery.addEventListener('pointerdown', event => {
   heldWord = null;
   holdTimer = setTimeout(() => {
     heldWord = button;
-    speak([button.querySelector('b').textContent], 'records');
+    speakRecordWord(button.querySelector('b').textContent, area('records').querySelector('.record-feedback'));
   }, 520);
 });
 for (const name of ['pointerup', 'pointercancel', 'pointerleave']) {
@@ -753,9 +750,17 @@ window.addEventListener('popstate', () => {
 window.addEventListener('pagehide', stopUnitAudio);
 if (embedded) {
   window.addEventListener('message', event => {
-    if (event.source === window.parent && event.origin === location.origin && event.data?.type === 'wordclass-unit-hide') {
-      stopUnitAudio();
-    }
+    if (event.source !== window.parent || event.origin !== location.origin) return;
+    const {type, entries, vocabulary} = event.data ?? {};
+    if (type === 'wordclass-unit-hide') stopUnitAudio();
+    if (!plannedPractice || type !== 'wordclass-plan-start' || !Array.isArray(entries) || !Array.isArray(vocabulary)) return;
+    const unit = {words:vocabulary};
+    practice[requestedPractice] = {
+      plan:true, fromDue:false, unitNumber:0, index:0, entries:entries.map(word => ({word,unit}))
+    };
+    resetPracticeStep(practice[requestedPractice]);
+    render(requestedPractice);
+    show(requestedPractice);
   });
 }
 
