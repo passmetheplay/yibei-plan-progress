@@ -148,6 +148,7 @@
     .note{max-width:412px;width:100%}
   }
 </style>
+<link rel="stylesheet" href="unit-flows.css?v=1">
 </head>
 <body>
 
@@ -155,10 +156,11 @@
   <div class="kick">单元学 TAB · 最终方案</div>
   <h1>按单元学词、复习词、学课文</h1>
   <p>一个单元一枚圆圈进度，三个动作固定在右侧。学完的单元「学词」置灰、「复习词」自动变成主按钮；
-    没学过的单元「复习词」置灰。</p>
+    没学过的单元「复习词」置灰。点手机里的入口，查看下方对应的手机图和说明卡。</p>
+  <nav id="flow-index" aria-label="入口目录"></nav>
 </div>
 
-<div class="stage">
+<div class="stage" id="unit-home">
 
   <!-- 手机图 -->
   <div class="phone">
@@ -174,7 +176,7 @@
       </div>
 
       <div class="page">
-        <div class="nav"><h2>单元学</h2><div class="r"><span class="chip">切换教材</span><div class="icon-btn">⚙</div></div></div>
+        <div class="nav"><h2>单元学</h2><div class="r"><button class="chip" data-open="book">切换教材</button><button class="icon-btn" data-open="settings" aria-label="学习设置">⚙</button></div></div>
 
         <div class="card book">
           <div class="cover"><img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 156'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFEBCB'/%3E%3Cstop offset='1' stop-color='%23E9944F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='112' height='156' fill='url(%23s)'/%3E%3Ccircle cx='86' cy='34' r='13' fill='%23FFD27A' opacity='.9'/%3E%3Cpath d='M0 104 Q30 78 58 104 T112 98 V156 H0Z' fill='%23DC8244'/%3E%3Cpath d='M0 124 Q34 104 64 124 T112 118 V156 H0Z' fill='%23B9612C'/%3E%3Crect x='18' y='16' width='74' height='44' rx='7' fill='%23FFFBF4' opacity='.96'/%3E%3Ctext x='55' y='36' font-size='17' font-weight='bold' fill='%238A4A18' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E8%8B%B1%E8%AF%AD%3C/text%3E%3Ctext x='55' y='50' font-size='7.5' fill='%23A9765A' text-anchor='middle' font-family='PingFang SC,sans-serif'%3E%E4%BA%94%E5%B9%B4%E7%BA%A7%E4%B8%8A%E5%86%8C%3C/text%3E%3C/svg%3E"></div>
@@ -189,22 +191,22 @@
         <div class="due">
           <span class="dot"></span>
           <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
-          <button class="go">去复习</button>
+          <button class="go" data-open="due">去复习</button>
         </div>
 
-        <div class="sec"><h3>单元<span>6 个</span></h3><span class="entry">学习记录 ›</span></div>
+        <div class="sec"><h3>单元<span>6 个</span></h3><button class="entry" data-open="records">学习记录 ›</button></div>
 
         <div class="units" id="units"></div>
 
         <div class="tip">学词、复习词、学课文都会留下记录；单词列表里长按单词即可发音。</div>
       </div>
 
-      <div class="tabbar">
-        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3l9 7.6V21a1 1 0 0 1-1 1h-5.2v-6.6H9.2V22H4a1 1 0 0 1-1-1z"/></svg>今日</div>
-        <div class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M4 4.5v15"/></svg>单元学</div>
-        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8.5 12 2.2 2.2L15.8 9"/></svg>检测</div>
-        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>我的</div>
-      </div>
+      <nav class="tabbar" aria-label="底部导航">
+        <button class="tab" data-open="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3l9 7.6V21a1 1 0 0 1-1 1h-5.2v-6.6H9.2V22H4a1 1 0 0 1-1-1z"/></svg>今日</button>
+        <button class="tab on" aria-current="page" data-open="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M4 4.5v15"/></svg>单元学</button>
+        <button class="tab" data-open="test"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8.5 12 2.2 2.2L15.8 9"/></svg>检测</button>
+        <button class="tab" data-open="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>我的</button>
+      </nav>
     </div>
   </div>
 
@@ -235,41 +237,7 @@
 
 </div>
 
-<script>
-  const UNITS = [
-    { n:1, title:"What's he like?",      total:12, learned:12, mastered:8 },
-    { n:2, title:"My week",              total:19, learned:14, mastered:6 },
-    { n:3, title:"What would you like?", total:21, learned:12, mastered:4 },
-    { n:4, title:"What can you do?",     total:18, learned:8,  mastered:0 },
-    { n:5, title:"There is a big bed",   total:24, learned:4,  mastered:0 },
-    { n:6, title:"In a nature park",     total:24, learned:0,  mastered:0 }
-  ];
-
-  document.getElementById('units').innerHTML = UNITS.map(u => {
-    const left = u.total - u.learned, full = left === 0, pct = Math.round(u.learned/u.total*100);
-    const color = full ? '#1FBFA4' : (pct === 0 ? '#E9DED4' : '#FF7A45');
-    return `
-      <div class="unit">
-        <div class="ring ${full?'full':''}" style="--p:${pct};--c:${color}"><span>${pct}%</span></div>
-        <div class="u-left">
-          <div class="u-top">
-            <div class="u-name"><b>Unit ${u.n}</b><span>${u.title}</span></div>
-          </div>
-          <div class="u-data">
-            <span>已学 <b>${u.learned}/${u.total}</b></span>
-            <span class="m">掌握 <b>${u.mastered}</b></span>
-            <span class="o">未学 <b>${left}</b></span>
-          </div>
-        </div>
-        <div class="u-acts">
-          ${full ? `<button class="b-learn off">已学完</button>` : `<button class="b-learn">学词</button>`}
-          ${u.learned > 0
-            ? `<button class="b-review ${full?'main':''}">复习词</button>`
-            : `<button class="b-review off">复习词</button>`}
-          <button class="b-text">学课文</button>
-        </div>
-      </div>`;
-  }).join('');
-</script>
+<main id="flow-gallery" aria-label="单元学入口演示"></main>
+<script src="unit-flows.js?v=1"></script>
 </body>
 </html>
