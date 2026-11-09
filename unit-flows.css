@@ -43,12 +43,7 @@
 .flow-choice{display:grid;gap:6px;padding:0;margin:0;border:0}
 .flow-choice legend{font-size:12px;font-weight:800;margin-bottom:7px}
 .flow-choice input{accent-color:#AD461C}
-.flow-word-card{text-align:center;padding:24px 14px 19px}
 .flow-word{font-size:32px;font-weight:900;line-height:1.2;overflow-wrap:anywhere}
-.flow-meaning{margin:11px 0 16px;min-height:20px;color:var(--ink-2);font-size:15px}
-.flow-word-card .flow-actions{justify-content:center}
-.flow-progress{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);font-weight:800}
-.flow-stack .bar{height:7px}
 .flow-list{max-height:290px;overflow:auto;overscroll-behavior:contain}
 .flow-words{margin:0;padding:0;list-style:none}
 .flow-words li{border-bottom:1px solid #F3E6DA}
@@ -76,3 +71,75 @@
 }
 
 .flow-panel.flow-row{padding:12px 14px}
+
+.book-ribbon{position:absolute;top:0;right:0;min-height:33px;padding:0 11px 0 16px;border-radius:0 17px 0 24px;background:linear-gradient(135deg,#FFDD7A,#FFB020);color:#6B3F00;font-size:11px;font-weight:900}
+.book h3{padding-right:73px}
+.flow-stage .screen{min-height:540px}
+.flow-inner{flex:1;display:flex;flex-direction:column}
+.flow-nav{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;gap:8px;min-height:36px}
+.flow-nav h3{font-size:17px;text-align:center;line-height:1.25;margin:0}
+.flow-nav a,.flow-nav button{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid #EDDFD2;border-radius:10px;background:white;font-size:20px;line-height:1;color:#A4471C;text-decoration:none}
+.flow-nav a::before{content:'‹'}
+.flow-nav a span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.flow-nav::after{content:''}
+.flow-stage .note ol{margin:0;padding-left:19px;font-size:12px;line-height:1.7;color:var(--ink-2)}
+.flow-stage .note ol li+li{margin-top:4px}
+.flow-stack{min-width:0}
+.flow-footer{align-self:end;display:grid;gap:6px;margin-top:auto}
+.flow-footer .flow-button{width:100%;min-height:44px;text-align:center}
+.flow-page-heading h4{font-size:22px;letter-spacing:-.6px;margin-bottom:4px}
+.flow-grade-choice,.flow-term-choice{min-height:48px}
+.flow-caption{color:#756459;margin:0}
+.flow-stage .flow-select{max-width:100%;width:100%}
+.record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.record-head h4{font-size:19px;line-height:1.25;letter-spacing:-.4px}
+.record-head p{font-size:11px;color:#756459}
+.record-head .flow-select{min-width:83px;width:auto}
+.record-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border-radius:11px;background:#F2E7DE;padding:3px}
+.record-filters button{border-radius:8px;padding:8px 1px;color:#6B594D;font-size:12px;white-space:nowrap;font-weight:800}
+.record-filters button[aria-pressed=true]{color:#A4471C;background:#FFF;box-shadow:0 1px 4px #4C2E1315}
+.record-results{padding:0 12px}
+.record-results h4{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:11px 0;margin:0;border-bottom:1px solid #F3E6DA;font-size:13px}
+.record-results h4 small{white-space:nowrap;color:#756459;font-size:10px}
+.record-empty{padding:27px 0;text-align:center;color:#756459;font-size:12px}
+.record-empty b{display:block;color:var(--ink);font-size:14px}
+.record-results .flow-sound em{padding:3px 5px;border-radius:5px;background:#E8F6EF;color:#356653}
+.record-results .flow-sound em.unlearned{background:#F2E9DF;color:#6F5B4C}
+.practice-progress{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#756459;font-weight:800}
+.practice-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.practice-steps span{text-align:center;border-radius:7px;padding:6px 1px;background:#F2E7DE;color:#6D594B;font-size:12px;font-weight:800}
+.practice-steps .done{background:#E8F6ED;color:#136C58}
+.practice-steps .current{background:#AD461C;color:white}
+.practice-card{text-align:center;padding:18px 12px}
+.practice-card .flow-actions{justify-content:center}
+.practice-card .flow-word{margin:2px 0}
+.practice-card h4{margin:8px 0 0}
+.practice-example{border-top:1px solid #F0E6DC;padding-top:8px;margin-top:10px;font-size:12px}
+.practice-example p{margin-top:2px}
+.practice-title{font-size:18px}
+.practice-feedback{min-height:22px;border-radius:8px;color:#136C58;font-size:12px;font-weight:800}
+.practice-feedback.bad{color:#A73B23}
+.practice-letters{display:flex;justify-content:center;flex-wrap:wrap;gap:5px}
+.practice-letters button,.practice-letters span{width:28px;min-height:33px;display:grid;place-items:center;border-radius:7px;border:1px solid #E8D8C9;background:white;font:800 15px var(--font)}
+.practice-letters .slot{background:#FFF4EB;border-style:dashed}
+.practice-letters button:disabled{opacity:.3}
+.practice-input{display:block;width:100%;padding:9px 10px;margin-top:8px;border:1px solid #DDB79E;border-radius:9px;background:white;font:700 17px var(--font)}
+.practice-summary{text-align:center}
+.practice-summary strong{display:block;color:#136C58;font-size:34px;line-height:1.2;margin:5px 0}
+@media(max-width:455px){
+  .book .meta{white-space:normal}
+  .flow-inner{padding-inline:12px}
+  .flow-nav{grid-template-columns:34px minmax(0,1fr) 34px}
+  .record-filters button{font-size:11px}
+}
+.flow-nav [hidden]{display:none}
+.flow-nav h3{grid-column:2;grid-row:1}
+.flow-nav a,.flow-nav button{grid-column:1;grid-row:1}
+.flow-content:has(.flow-footer){flex:1;display:flex;flex-direction:column}
+.flow-feedback:empty{display:none}
+.u-acts{display:grid;grid-template-columns:repeat(3,45px)}
+.u-acts button{padding-inline:3px}
+@media(max-width:375px){
+  .u-acts{grid-template-columns:repeat(3,39px)}
+  .record-filters button{font-size:10px}
+}
