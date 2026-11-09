@@ -231,3 +231,12 @@
 .lesson-import form{display:grid;gap:7px;margin-top:9px}
 .lesson-import textarea{width:100%;min-height:116px;padding:8px;border:1px solid #E7D1BF;border-radius:8px;color:var(--ink);font:12px/1.55 var(--font);resize:vertical}
 .lesson-import-feedback{min-height:16px;font-size:11px;color:#136C58}
+
+body.is-embedded{padding:0;background:var(--bg)}
+.is-embedded :is(.head,.note,.gallery-heading,.statusbar,.tabbar,.stage[hidden]){display:none}
+.is-embedded #flow-gallery{margin:0}
+.is-embedded .stage{padding:0;margin:0;border:0}
+.is-embedded .stage .phone{width:100%;max-width:none;padding:0;border-radius:0;background:none;box-shadow:none}
+.is-embedded .stage .screen{width:100%;min-height:100dvh;border-radius:0}
+.is-embedded #entry-text .screen{height:100dvh}
+.is-embedded .lesson-import{margin:5px 0 8px}

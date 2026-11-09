@@ -11,6 +11,8 @@ const wordExamples = {
 function clearPracticeAudio(session) {
   if (!session) return;
   session.audioRequest = null;
+  session.playback?.pause();
+  session.playback = null;
   const { recording, audioUrl } = session;
   if (recording?.state === 'recording') recording.stop();
   session.recording = null;

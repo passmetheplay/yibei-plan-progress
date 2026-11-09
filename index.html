@@ -138,9 +138,14 @@
     .note{max-width:412px;width:100%}
   }
 </style>
-<link rel="stylesheet" href="unit-flows.css?v=8">
+<link rel="stylesheet" href="unit-flows.css?v=9">
 </head>
 <body>
+<script>
+  if (new URLSearchParams(location.search).get('embed') === '1') {
+    document.body.classList.add('is-embedded');
+  }
+</script>
 
 <div class="head">
   <div class="kick">单元学 TAB · 最终方案</div>
@@ -236,7 +241,7 @@
 
 <main id="flow-gallery" aria-label="单元学入口演示"></main>
 <script src="pep-lessons.js?v=1"></script>
-<script src="word-practice.js?v=2"></script>
-<script src="unit-flows.js?v=9"></script>
+<script src="word-practice.js?v=3"></script>
+<script src="unit-flows.js?v=10"></script>
 </body>
 </html>

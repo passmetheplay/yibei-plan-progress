@@ -81,6 +81,7 @@ const settings = { translations: true, autoPlay: false };
 const defaults = { learn: 2, review: 1, text: 2 };
 const stage = document.querySelector('#unit-home');
 const gallery = document.querySelector('#flow-gallery');
+const embedded = document.body.classList.contains('is-embedded');
 const statusbar = stage.querySelector('.statusbar').outerHTML;
 const cover = stage.querySelector('.cover img');
 const originalCover = cover.src;
@@ -424,8 +425,14 @@ function render(key) {
 function show(key) {
   const target = document.getElementById(anchor(key));
   if (!target) return;
-  if (location.hash !== '#' + target.id) history.pushState(null, '', '#' + target.id);
-  target.scrollIntoView({ block: 'start' });
+  if (embedded) {
+    stage.hidden = key !== 'home';
+    for (const section of gallery.querySelectorAll('.flow-stage')) section.hidden = section !== target;
+    window.scrollTo(0, 0);
+  } else {
+    if (location.hash !== '#' + target.id) history.pushState(null, '', '#' + target.id);
+    target.scrollIntoView({ block: 'start' });
+  }
   const heading = target.querySelector('h2, h3');
   heading?.setAttribute('tabindex', '-1');
   heading?.focus({ preventScroll: true });
@@ -436,17 +443,17 @@ function renderGallery() {
     + Object.entries(flows).map(([key, [title, caption, notes]], index) => {
       const back = `<a href="#unit-home" data-open="home"><span>返回单元学</span></a>`;
       const previous = key === 'book' ? '<button type="button" data-action="back-to-grade" aria-label="返回年级选择" hidden>‹</button>' : '';
-      const phone = `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}${previous}<h3>${title}</h3></header><div class="flow-stack flow-content"></div></div></div></div>`;
       const importer = key === 'text' ? `<details class="lesson-import"><summary>导入课文原文</summary>
         <form data-lesson-import><label for="lesson-text">每行一句。可用「｜」隔开英文与译文。</label>
           <textarea id="lesson-text" name="lesson" maxlength="50000" required></textarea>
           <button type="submit" class="flow-button">用于当前课文</button>
           <p class="lesson-import-feedback" aria-live="polite"></p>
         </form></details>` : '';
-      return `<section id="${anchor(key)}" class="stage flow-stage" aria-labelledby="flow-title-${key}">${phone}
-        <aside class="note"><span class="tag">${String(index + 1).padStart(2, '0')} · 入口演示</span><h2 id="flow-title-${key}">${title}</h2>
-          <p class="sub">${caption}</p><h3>操作与状态</h3><ol>${notes.map(note => '<li>' + note + '</li>').join('')}</ol>${importer}
-          <a href="#unit-home" class="flow-home" data-open="home">↑ 返回单元学首页</a></aside></section>`;
+      const phone = `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}${previous}<h3${embedded ? ' id="flow-title-' + key + '"' : ''}>${title}</h3></header><div class="flow-stack flow-content"></div>${embedded ? importer : ''}</div></div></div>`;
+      const note = embedded ? '' : `<aside class="note"><span class="tag">${String(index + 1).padStart(2, '0')} · 入口演示</span><h2 id="flow-title-${key}">${title}</h2>
+        <p class="sub">${caption}</p><h3>操作与状态</h3><ol>${notes.map(note => '<li>' + note + '</li>').join('')}</ol>${importer}
+        <a href="#unit-home" class="flow-home" data-open="home">↑ 返回单元学首页</a></aside>`;
+      return `<section id="${anchor(key)}" class="stage flow-stage" aria-labelledby="flow-title-${key}"${embedded ? ' hidden' : ''}>${phone}${note}</section>`;
     }).join('');
   document.querySelector('#flow-index').innerHTML = Object.entries(flows).map(([key, [title]]) =>
     `<a href="#${anchor(key)}" data-open="${key}">${title}</a>`).join('');
@@ -465,16 +472,21 @@ function resetBookViews() {
   for (const key of Object.keys(renderers)) render(key);
 }
 
-function openFlow(button) {
-  const key = button.dataset.open;
+function stopUnitAudio() {
   stopLessonPlayback();
   for (const mode of ['learn', 'review']) {
     const session = practice[mode];
-    if (session.recording || session.audioRequest || session.audioUrl) {
+    if (session.recording || session.audioRequest || session.audioUrl || session.playback) {
       clearPracticeAudio(session);
       render(mode);
     }
   }
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+function openFlow(button) {
+  const key = button.dataset.open;
+  stopUnitAudio();
   if (key === 'book') {
     pendingGrade = null;
     pendingTerm = null;
@@ -490,7 +502,6 @@ function openFlow(button) {
     selectedLesson = 'a';
     render(key);
   }
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   show(key);
   if (key === 'text') autoplayLesson();
 }
@@ -616,7 +627,11 @@ gallery.addEventListener('click', event => {
     togglePracticeRecording(session, () => render(key));
   } else if (command === 'play-voice') {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    new Audio(session.audioUrl).play().catch(() => {
+    session.playback?.pause();
+    const playback = new Audio(session.audioUrl);
+    session.playback = playback;
+    playback.play().catch(() => {
+      if (session.playback !== playback) return;
       session.feedback = '无法播放本次录音，可以重新录音。';
       render(key);
     });
@@ -735,7 +750,14 @@ window.addEventListener('popstate', () => {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }
 });
-window.addEventListener('pagehide', stopLessonPlayback);
+window.addEventListener('pagehide', stopUnitAudio);
+if (embedded) {
+  window.addEventListener('message', event => {
+    if (event.source === window.parent && event.origin === location.origin && event.data?.type === 'wordclass-unit-hide') {
+      stopUnitAudio();
+    }
+  });
+}
 
 renderGallery();
 resetBookViews();
