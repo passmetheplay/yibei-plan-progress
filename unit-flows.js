@@ -74,12 +74,6 @@ const flows = {
     '底部可以播放、暂停、开关译文和自动播放。继续播放时从当前句开头读。手点句子可直接跳读。',
     '五年级上下册的人教社配套原声在正文末尾。',
     '五上 Unit 2 的 A、B 对话已收录原文选段。完整原文可贴入下方，按当前单元和栏目逐句点读。'
-  ]],
-  test: ['检测', '从底部「检测」进入。', [
-    '这里演示选择单元、答一道词义题、查看对错和正确答案。'
-  ]],
-  profile: ['我的', '从底部「我的」进入。', [
-    '这里演示当前教材、已学与掌握词数，并提供学习记录入口。'
   ]]
 };
 
@@ -102,8 +96,6 @@ let autoStartedAudio = null;
 let lessonSpeech = null;
 let noReviewPreview = new URLSearchParams(location.search).get('review') === 'none';
 const importedLessons = new Map();
-let testUnit = 2;
-let testAnswer = -1;
 const practice = {};
 
 const book = () => activeBook;
@@ -116,7 +108,6 @@ const area = key => document.querySelector('#' + anchor(key) + ' .flow-content')
 const action = (name, label, classes = '') => `<button type="button" class="flow-button ${classes}" data-action="${name}">${label}</button>`;
 const open = (key, label, options = '', classes = '') => `<button type="button" class="flow-button ${classes}" data-open="${key}" ${options}>${label}</button>`;
 const bar = (value, max) => `<div class="bar"><i style="width:${value / max * 100}%"></i></div>`;
-const unitSelect = (actionName, chosen, all = false) => `<select class="flow-select" data-action="${actionName}" aria-label="选择单元">${all ? '<option value="0">全书</option>' : ''}${book().units.map(u => `<option value="${u.n}" ${chosen === u.n ? 'selected' : ''}>Unit ${u.n} · ${u.title}</option>`).join('')}</select>`;
 
 function renderHome() {
   const { name, units } = book();
@@ -189,7 +180,7 @@ function completePracticeWord(key, session) {
   session.index++;
   resetPracticeStep(session);
   renderHome();
-  for (const view of ['records', 'due', 'profile']) render(view);
+  for (const view of ['records', 'due']) render(view);
 }
 
 function renderBookPicker() {
@@ -408,16 +399,7 @@ const renderers = {
   records: renderRecords,
   learn: () => practiceMarkup('learn', practice.learn),
   review: () => practiceMarkup('review', practice.review),
-  text: renderText,
-  test: () => {
-    const u = getUnit(testUnit);
-    const options = [u.words[1], u.words[0], u.words[2]];
-    return `${unitSelect('test-unit', testUnit)}<div class="flow-panel"><div class="flow-eyebrow">词义检测 · 第 1 题</div><h4>${u.words[0].en}</h4><p>选择正确的中文词义</p></div>
-      ${options.map((word, i) => `<button type="button" class="flow-option ${i === testAnswer ? 'selected' : ''}" data-action="answer" data-index="${i}">${word.cn}</button>`).join('')}
-      <div class="flow-feedback" aria-live="polite">${testAnswer < 0 ? '' : testAnswer === 1 ? '答对了！' : '正确答案是「' + u.words[0].cn + '」。'}</div>`;
-  },
-  profile: () => `<div class="flow-panel"><div class="flow-eyebrow">我的教材</div><h4>${book().name} · 人教 PEP</h4><p>已学 ${count(book().units, 'learned')} 词 · 已掌握 ${count(book().units, 'mastered')} 词</p></div>
-    <div class="flow-actions">${open('records', '查看学习记录', '', 'primary')}</div>`
+  text: renderText
 };
 
 function render(key) {
@@ -477,8 +459,6 @@ function resetBookViews() {
   textUnit = getUnit(defaults.text)?.n ?? book().units[0].n;
   selectedLine = -1;
   selectedLesson = 'a';
-  testUnit = textUnit;
-  testAnswer = -1;
   startPractice('learn', defaults.learn);
   startPractice('review', defaults.review);
   renderHome();
@@ -578,11 +558,6 @@ gallery.addEventListener('change', event => {
     recordUnit = Number(value);
     render('records');
     area('records').querySelector('[data-action="record-unit"]').focus();
-  } else if (command === 'test-unit') {
-    testUnit = Number(value);
-    testAnswer = -1;
-    render('test');
-    area('test').querySelector('[data-action="test-unit"]').focus();
   } else if (command === 'choose-lesson') {
     changeLesson(value, '.lesson-picker');
   } else if (command === 'autoplay') {
@@ -679,10 +654,6 @@ gallery.addEventListener('click', event => {
     toggleLessonPlayback();
   } else if (command === 'say-line') {
     playLessonSentence(Number(button.dataset.line));
-  } else if (command === 'answer') {
-    testAnswer = Number(button.dataset.index);
-    render(key);
-    area(key).querySelector('[data-index="' + testAnswer + '"]').focus();
   }
 });
 
