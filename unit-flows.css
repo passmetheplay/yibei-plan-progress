@@ -56,15 +56,15 @@
 .flow-line[aria-pressed=true]{background:#E3F7EF;color:#0B6A5C}
 .flow-line span{display:block;font-size:11px;font-weight:500;color:var(--ink-2);margin-top:4px}
 .flow-line .line-translation[hidden]{display:none}
-.reading-settings{padding:2px 12px}
-.reading-setting{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:47px;font-size:12px;font-weight:800}
-.reading-setting+.reading-setting{border-top:1px solid #F3E6DA;cursor:pointer}
+.reading-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 11px}
+.reading-setting{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;font-size:11px;font-weight:800;cursor:pointer}
+.reading-setting+.reading-setting{border-left:1px solid #F3E6DA;padding-left:10px}
 .reading-switch{position:relative;cursor:pointer}
 .reading-switch input{position:absolute;width:1px;height:1px;opacity:0}
-.reading-switch span{display:block;width:42px;height:24px;padding:3px;border-radius:999px;background:#D7C7BC}
-.reading-switch span::before{content:'';display:block;width:18px;height:18px;border-radius:50%;background:#FFF;box-shadow:0 1px 3px #42220F30}
+.reading-switch span{display:block;width:33px;height:20px;padding:3px;border-radius:999px;background:#D7C7BC}
+.reading-switch span::before{content:'';display:block;width:14px;height:14px;border-radius:50%;background:#FFF;box-shadow:0 1px 3px #42220F30}
 .reading-switch input:checked+span{background:#0B7968}
-.reading-switch input:checked+span::before{transform:translateX(18px)}
+.reading-switch input:checked+span::before{transform:translateX(13px)}
 .reading-setting input:focus-visible+span{outline:2px solid #0C8270;outline-offset:2px}
 .flow-feedback{min-height:20px;font-size:12px;color:#0B7968;font-weight:800}
 .tab:disabled{cursor:default}
@@ -155,12 +155,43 @@
   .record-filters button{font-size:10px}
 }
 
-.lesson-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.lesson-part{min-height:48px;padding:5px 8px;border-radius:10px;border:1px solid #EADACD;background:#FFF;text-align:left}
-.lesson-part b,.lesson-part span{display:block}
-.lesson-part b{color:var(--ink-2);font-size:10px}
-.lesson-part span{font-size:12px;font-weight:800}
-.lesson-part[aria-pressed=true]{background:#FFF0E7;border-color:#E0A88A;color:#A4471C}
-.lesson-part[aria-pressed=true] b{color:#A4471C}
-.lesson-audio audio{display:block;width:100%;height:36px;margin:8px 0}
+/* The brief nudge follows the Today tab's CTA pulse. */
+.review-guide{animation:review-guide 2.6s cubic-bezier(.4,0,.3,1) infinite}
+.unit:nth-child(2) .review-guide{animation-delay:.23s}
+.unit:nth-child(3) .review-guide{animation-delay:.46s}
+@keyframes review-guide{
+  0%,24%,100%{transform:none}
+  6%{transform:translateX(-1.5px) scale(1.04)}
+  12%{transform:translateX(1.5px) scale(1.04)}
+  18%{transform:translateX(-1px)}
+}
+@media(prefers-reduced-motion:reduce){.review-guide{animation:none}}
+.home-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;border-radius:11px;background:#F6EAE0;padding:4px}
+.home-preview button{padding:8px 5px;border-radius:7px;color:#705D51;font-size:12px;font-weight:800}
+.home-preview button[aria-pressed=true]{color:#A4471C;background:#FFF;box-shadow:0 1px 5px #4C2E1318}
+.home-preview button:focus-visible,.lesson-import summary:focus-visible{outline:2px solid #0C8270;outline-offset:2px}
+.note .row .sw.l{background:#FFF0E2;color:#954214;border:1px solid #EDC3A7}
+.note .row .sw.r{background:#E7F7F0;color:#126C5B;border:1px solid #A4DBCA}
+.note .row .sw.t{background:#EEF0FF;color:#4E52A0;border:1px solid #CED2F4}
+
+.lesson-heading{padding:2px 1px 0}
+.lesson-heading .flow-eyebrow{margin-bottom:3px}
+.lesson-heading h4{font-size:19px;line-height:1.3}
+.lesson-heading .lesson-picker{margin-top:8px;width:100%;min-height:34px;padding-block:6px}
+.lesson-transcript{padding:1px 0;min-height:135px}
+.lesson-transcript .flow-caption{padding:10px 13px 4px}
+.lesson-transcript .flow-line{display:grid;grid-template-columns:22px minmax(0,1fr) 20px;align-items:start;gap:7px;background:transparent;border-radius:0;padding:12px 13px}
+.lesson-transcript .flow-line+.flow-line{border-top:1px solid #F3E6DA}
+.lesson-transcript .flow-line b{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.lesson-transcript .flow-line .line-count,.lesson-transcript .flow-line .line-play{font-size:11px;font-weight:800;color:#136C58;margin-top:4px}
+.lesson-transcript .flow-line[aria-pressed=true]{background:#E7F7F0}
+.lesson-empty{padding:16px 13px}
+.lesson-empty .flow-button{margin-top:10px}
+.lesson-audio{padding:8px 2px}
+.lesson-audio summary,.lesson-import summary{color:#A4471C;font-size:12px;font-weight:800;cursor:pointer}
+.lesson-audio audio{display:block;width:100%;height:34px;margin:6px 0}
 .lesson-source{color:#A4471C;font-size:11px;font-weight:750;text-decoration:none}
+.lesson-import{margin-top:14px;padding:10px;border:1px solid #F1E1D3;border-radius:10px}
+.lesson-import form{display:grid;gap:7px;margin-top:9px}
+.lesson-import textarea{width:100%;min-height:116px;padding:8px;border:1px solid #E7D1BF;border-radius:8px;color:var(--ink);font:12px/1.55 var(--font);resize:vertical}
+.lesson-import-feedback{min-height:16px;font-size:11px;color:#136C58}

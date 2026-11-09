@@ -70,10 +70,10 @@ const flows = {
     '单元内的学习与复习会更新教材词记录。今日按计划单独取词和结算任务进度。'
   ]],
   text: ['学课文', '从对应单元的「学课文」进入。', [
-    '课文随所选教材展示。当前五年级课文有 A、B 对话，B 阅读和 C 选学故事。',
-    '显示译文和自动播放直接展开。进入课文或切换栏目时，开启自动播放会尝试播放当前栏目原声。',
-    '手点播放器可以播放或暂停。点已收录的句子时，优先播这一句。两项选择在本次浏览内保留。',
-    '五年级上下册接入人教社配套音频。逐句原文和译文先覆盖五年级上册 Unit 2 的 A、B 对话选段。'
+    '用标题下的一行选择器切换 A、B、C 或阅读栏目。正文逐句排开，点任意句听读。',
+    '显示译文和自动播放直接展开。自动播放开启时会顺序读句子，手点可以立即跳到所选句。',
+    '课文原声收在正文下方。五年级上下册可播放人教社配套音频。',
+    '五上 Unit 2 的 A、B 对话已收录原文选段。完整原文可贴入下方，按当前单元和栏目逐句点读。'
   ]],
   test: ['检测', '从底部「检测」进入。', [
     '这里演示选择单元、答一道词义题、查看对错和正确答案。'
@@ -99,13 +99,16 @@ let textUnit = 2;
 let selectedLine = -1;
 let selectedLesson = 'a';
 let autoStartedAudio = null;
+let autoReadingSentences = false;
+let noReviewPreview = new URLSearchParams(location.search).get('review') === 'none';
+const importedLessons = new Map();
 let testUnit = 2;
 let testAnswer = -1;
 const practice = {};
 
 const book = () => activeBook;
 const getUnit = n => book().units[n - 1];
-const dueUnits = () => book().units.filter(u => u.due);
+const dueUnits = () => noReviewPreview ? [] : book().units.filter(u => u.due);
 const count = (units, field) => units.reduce((sum, u) => sum + u[field], 0);
 const total = units => units.reduce((sum, u) => sum + u.words.length, 0);
 const anchor = key => key === 'home' ? 'unit-home' : 'entry-' + key;
@@ -127,11 +130,17 @@ function renderHome() {
   stage.querySelector('.sec h3 span').textContent = units.length + ' 个';
   stage.querySelector('.book .bar i').style.width = Math.round(learned / words * 100) + '%';
   stage.querySelector('.book .pct').textContent = `已学 ${learned} / ${words} · 已掌握 ${mastered}`;
+  for (const button of stage.querySelectorAll('[data-review-preview]')) {
+    const previewsEmpty = button.dataset.reviewPreview === 'none';
+    button.setAttribute('aria-pressed', String(previewsEmpty === noReviewPreview));
+    if (!previewsEmpty) button.textContent = units.some(unit => unit.due) ? '有到期词' : '当前教材';
+  }
   const dueBar = stage.querySelector('.due');
   dueBar.hidden = due.length === 0;
   if (due.length) dueBar.querySelector('.t b').textContent = `今天 ${due.length} 个单元有 ${count(due, 'due')} 词到期`;
   stage.querySelector('#units').innerHTML = units.map(u => {
     const left = u.words.length - u.learned;
+    const canReview = !noReviewPreview && u.due > 0;
     const pct = Math.round(u.learned / u.words.length * 100);
     const color = left === 0 ? '#1FBFA4' : pct === 0 ? '#E9DED4' : '#FF7A45';
     return `<div class="unit">
@@ -141,8 +150,8 @@ function renderHome() {
         <div class="u-data"><span>已学 <b>${u.learned}/${u.words.length}</b></span><span class="m">掌握 <b>${u.mastered}</b></span><span class="o">未学 <b>${left}</b></span></div>
       </div>
       <div class="u-acts">
-        <button type="button" class="b-learn ${left ? '' : 'off'}" data-open="learn" data-unit="${u.n}" ${left ? '' : 'disabled'}>${left ? '学词' : '已学完'}</button>
-        <button type="button" class="b-review ${u.due ? 'main' : 'off'}" data-open="review" data-unit="${u.n}" ${u.due ? '' : 'disabled'}>复习词</button>
+        <button type="button" class="b-learn" data-open="learn" data-unit="${u.n}" ${left ? '' : 'disabled'}>${left ? '学词' : '已学完'}</button>
+        <button type="button" class="b-review ${canReview ? 'main review-guide' : ''}" data-open="review" data-unit="${u.n}" ${canReview ? '' : 'disabled'}>复习词</button>
         <button type="button" class="b-text" data-open="text" data-unit="${u.n}">学课文</button>
       </div>
     </div>`;
@@ -156,7 +165,7 @@ function startPractice(key, n, fromDue = false) {
   const entries = selectedUnits.flatMap(unit => {
     const eligible = unit.words.map((word, offset) => ({ unit, word, offset }));
     if (key === 'learn') return eligible.slice(unit.learned);
-    return eligible.filter(({ word }) => unit.dueWords.has(word));
+    return noReviewPreview ? [] : eligible.filter(({ word }) => unit.dueWords.has(word));
   });
   practice[key] = { unitNumber, fromDue, entries, index: 0 };
   resetPracticeStep(practice[key]);
@@ -208,7 +217,12 @@ function renderRecords() {
     <div class="flow-feedback" aria-live="polite"></div>`;
 }
 
+const lessonId = () => `${book().name}/${textUnit}/${selectedLesson}`;
+const textHtml = value => value.replace(/[&<>]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[char]);
+
 function currentLessonLines() {
+  const imported = importedLessons.get(lessonId());
+  if (imported) return imported;
   const { grade, term } = book();
   return grade === '五' && term === '上' && textUnit === 2 ? pepLessonExcerpts[selectedLesson] ?? [] : [];
 }
@@ -220,35 +234,64 @@ function renderText() {
   const lines = currentLessonLines();
   const settingsRow = (label, command, checked) => `<label class="reading-setting"><span>${label}</span><span class="reading-switch">
     <input type="checkbox" role="switch" data-action="${command}" ${checked ? 'checked' : ''}><span aria-hidden="true"></span></span></label>`;
-  const sections = pepLessonParts.filter(({ key }) => tracks?.[key]).map(({ key, part, title, optional }) =>
-    `<button type="button" class="lesson-part" data-action="choose-lesson" data-part="${key}" aria-pressed="${key === selectedLesson}">
-      <b>${part}${optional ? ' · 选学' : ''}</b><span>${title}</span></button>`).join('');
-  return `<div class="flow-panel"><div class="flow-eyebrow">${book().name} · Unit ${u.n}</div><h4>${u.title}</h4></div>
+  const options = pepLessonParts.filter(({ key }) => tracks?.[key]).map(({ key, part, title, optional }) =>
+    `<option value="${key}" ${key === selectedLesson ? 'selected' : ''}>${part} · ${title}${optional ? '（选学）' : ''}</option>`).join('');
+  const rows = lines.map(([en, cn], i) =>
+    `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">
+      <span class="line-count" aria-hidden="true">${i + 1}</span><div><b>${textHtml(en)}</b>
+      ${cn ? `<span class="line-translation" ${settings.translations ? '' : 'hidden'}>${textHtml(cn)}</span>` : ''}</div>
+      <span class="line-play" aria-hidden="true">▶</span></button>`).join('');
+  return `<div class="lesson-heading"><div class="flow-eyebrow">${book().name} · Unit ${u.n}</div><h4>${u.title}</h4>
+    ${options ? `<select class="flow-select lesson-picker" data-action="choose-lesson" aria-label="课文栏目">${options}</select>` : ''}</div>
     <div class="flow-panel reading-settings">
       ${settingsRow('显示译文', 'translations', settings.translations)}
       ${settingsRow('自动播放', 'autoplay', settings.autoPlay)}
     </div>
-    ${sections ? `<div class="lesson-parts" role="group" aria-label="课文栏目">${sections}</div>
-      <div class="flow-panel lesson-audio"><h4>课文原声</h4><audio controls controlslist="nodownload noplaybackrate noremoteplayback" preload="none" src="${tracks[selectedLesson]}"></audio>
-      <a class="lesson-source" href="${pepAudioDirectory[term]}" target="_blank" rel="noopener">人教社配套音频 ↗</a></div>
-      ${lines.length ? `<p class="flow-caption">课文选段 · 点句子听读</p>${lines.map(([en, cn], i) =>
-        `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">${i + 1}. <b>${en}</b><span class="line-translation" ${settings.translations ? '' : 'hidden'}>${cn}</span></button>`).join('')}`
-        : '<p class="flow-caption">本栏目的逐句原文和译文暂未接入。</p>'}`
-      : '<div class="flow-panel"><p>这册教材的课文内容暂未接入。</p></div>'}
-    <div class="flow-feedback" aria-live="polite"></div>`;
+    <div class="flow-panel lesson-transcript">
+      ${lines.length ? `<p class="flow-caption">${importedLessons.has(lessonId()) ? '课文原文' : '原文选段'} · 点句子听读</p>${rows}`
+        : '<div class="lesson-empty"><p>等待接入课文原文。</p>' + action('open-lesson-import', '添加课文原文') + '</div>'}
+    </div>
+    <div class="flow-feedback" aria-live="polite"></div>
+    ${tracks ? `<details class="lesson-audio"><summary>整段课文原声</summary>
+      <audio controls controlslist="nodownload noplaybackrate noremoteplayback" preload="none" src="${tracks[selectedLesson]}"></audio>
+      <a class="lesson-source" href="${pepAudioDirectory[term]}" target="_blank" rel="noopener">人教社配套音频 ↗</a></details>` : ''}`;
+}
+
+function selectLessonLine(index) {
+  selectedLine = index;
+  for (const line of area('text').querySelectorAll('[data-line]')) {
+    line.setAttribute('aria-pressed', String(Number(line.dataset.line) === index));
+  }
 }
 
 function stopLessonPlayback() {
   area('text').querySelector('audio')?.pause();
+  if (autoReadingSentences && 'speechSynthesis' in window) window.speechSynthesis.cancel();
   autoStartedAudio = null;
+  autoReadingSentences = false;
+}
+
+function playLessonSentence(index) {
+  const lines = currentLessonLines();
+  stopLessonPlayback();
+  const playlist = settings.autoPlay ? lines.slice(index) : [lines[index]];
+  autoReadingSentences = settings.autoPlay;
+  selectLessonLine(index);
+  speak(playlist.map(([en]) => en), 'text', offset => selectLessonLine(index + offset));
 }
 
 function autoplayLesson() {
+  if (!settings.autoPlay) return;
+  if (currentLessonLines().length) {
+    playLessonSentence(0);
+    return;
+  }
   const audio = area('text').querySelector('audio');
-  if (!settings.autoPlay || !audio) return;
+  if (!audio) return;
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   const feedback = area('text').querySelector('.flow-feedback');
   feedback.textContent = '';
+  audio.closest('details').open = true;
   autoStartedAudio = audio;
   audio.play().catch(error => {
     if (autoStartedAudio !== audio || error.name === 'AbortError') return;
@@ -316,9 +359,15 @@ function renderGallery() {
       const back = `<a href="#unit-home" data-open="home"><span>返回单元学</span></a>`;
       const previous = key === 'book' ? '<button type="button" data-action="back-to-grade" aria-label="返回年级选择" hidden>‹</button>' : '';
       const phone = `<div class="phone"><div class="screen">${statusbar}<div class="flow-inner"><header class="flow-nav">${back}${previous}<h3>${title}</h3></header><div class="flow-stack flow-content"></div></div></div></div>`;
+      const importer = key === 'text' ? `<details class="lesson-import"><summary>导入课文原文</summary>
+        <form data-lesson-import><label for="lesson-text">每行一句。可用「｜」隔开英文与译文。</label>
+          <textarea id="lesson-text" name="lesson" maxlength="50000" required></textarea>
+          <button type="submit" class="flow-button">用于当前课文</button>
+          <p class="lesson-import-feedback" aria-live="polite"></p>
+        </form></details>` : '';
       return `<section id="${anchor(key)}" class="stage flow-stage" aria-labelledby="flow-title-${key}">${phone}
         <aside class="note"><span class="tag">${String(index + 1).padStart(2, '0')} · 入口演示</span><h2 id="flow-title-${key}">${title}</h2>
-          <p class="sub">${caption}</p><h3>操作与状态</h3><ol>${notes.map(note => '<li>' + note + '</li>').join('')}</ol>
+          <p class="sub">${caption}</p><h3>操作与状态</h3><ol>${notes.map(note => '<li>' + note + '</li>').join('')}</ol>${importer}
           <a href="#unit-home" class="flow-home" data-open="home">↑ 返回单元学首页</a></aside></section>`;
     }).join('');
   document.querySelector('#flow-index').innerHTML = Object.entries(flows).map(([key, [title]]) =>
@@ -370,7 +419,7 @@ function openFlow(button) {
   if (key === 'text') autoplayLesson();
 }
 
-function speak(lines, key) {
+function speak(lines, key, onLineStart) {
   const feedback = area(key).querySelector('.flow-feedback');
   if (!('speechSynthesis' in window)) {
     feedback.textContent = '当前浏览器不支持语音播放。';
@@ -381,6 +430,11 @@ function speak(lines, key) {
     const audio = new SpeechSynthesisUtterance(line);
     audio.lang = 'en-US';
     audio.rate = .85;
+    if (onLineStart) {
+      audio.onstart = () => {
+        if (feedback.isConnected) onLineStart(index);
+      };
+    }
     if (index === lines.length - 1) audio.onend = () => { feedback.textContent = '播放完成'; };
     audio.onerror = event => {
       if (event.error !== 'canceled' && event.error !== 'interrupted') feedback.textContent = '当前设备无法播放英文语音。';
@@ -389,6 +443,20 @@ function speak(lines, key) {
   });
   feedback.textContent = '正在播放…';
 }
+
+stage.addEventListener('click', event => {
+  const button = event.target.closest('[data-review-preview]');
+  if (!button) return;
+  noReviewPreview = button.dataset.reviewPreview === 'none';
+  const url = new URL(location.href);
+  if (noReviewPreview) url.searchParams.set('review', 'none');
+  else url.searchParams.delete('review');
+  history.replaceState(null, '', url);
+  renderHome();
+  startPractice('review', defaults.review);
+  render('review');
+  render('due');
+});
 
 document.addEventListener('click', event => {
   const trigger = event.target.closest('[data-open]');
@@ -418,12 +486,22 @@ gallery.addEventListener('change', event => {
     testAnswer = -1;
     render('test');
     area('test').querySelector('[data-action="test-unit"]').focus();
+  } else if (command === 'choose-lesson') {
+    stopLessonPlayback();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    selectedLesson = value;
+    selectedLine = -1;
+    render('text');
+    area('text').querySelector('.lesson-picker').focus({ preventScroll: true });
+    autoplayLesson();
   } else if (command === 'autoplay') {
     settings.autoPlay = event.target.checked;
     if (settings.autoPlay) autoplayLesson();
     else {
       autoStartedAudio?.pause();
+      if (autoReadingSentences && 'speechSynthesis' in window) window.speechSynthesis.cancel();
       autoStartedAudio = null;
+      autoReadingSentences = false;
       area('text').querySelector('.flow-feedback').textContent = '';
     }
   } else if (command === 'translations') {
@@ -500,22 +578,12 @@ gallery.addEventListener('click', event => {
     completePracticeWord(key, session);
     render(key);
     area(key).querySelector('.flow-footer button').focus({ preventScroll: true });
-  } else if (command === 'choose-lesson') {
-    if (selectedLesson === button.dataset.part) return;
-    stopLessonPlayback();
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    selectedLesson = button.dataset.part;
-    selectedLine = -1;
-    render(key);
-    area(key).querySelector('[aria-pressed="true"]').focus({ preventScroll: true });
-    autoplayLesson();
+  } else if (command === 'open-lesson-import') {
+    const importer = document.querySelector('#entry-text .lesson-import');
+    importer.open = true;
+    importer.querySelector('textarea').focus();
   } else if (command === 'say-line') {
-    stopLessonPlayback();
-    selectedLine = Number(button.dataset.line);
-    for (const line of area(key).querySelectorAll('[data-line]')) {
-      line.setAttribute('aria-pressed', String(Number(line.dataset.line) === selectedLine));
-    }
-    speak([currentLessonLines()[selectedLine][0]], key);
+    playLessonSentence(Number(button.dataset.line));
   } else if (command === 'answer') {
     testAnswer = Number(button.dataset.index);
     render(key);
@@ -524,6 +592,29 @@ gallery.addEventListener('click', event => {
 });
 
 gallery.addEventListener('submit', event => {
+  if (event.target.hasAttribute('data-lesson-import')) {
+    event.preventDefault();
+    const lines = new FormData(event.target).get('lesson').split(/\r?\n/).flatMap(line => {
+      const [en, cn = ''] = line.split(/[｜|\t]/, 2).map(value => value.trim());
+      if (!en) return [];
+      if (cn || !('Segmenter' in Intl)) return [[en, cn]];
+      const segments = new Intl.Segmenter('en', { granularity: 'sentence' }).segment(en);
+      return [...segments].map(({ segment }) => [segment.trim(), '']).filter(([text]) => text);
+    });
+    const feedback = event.target.querySelector('.lesson-import-feedback');
+    if (!lines.length) {
+      feedback.textContent = '请先填入英文课文。';
+      return;
+    }
+    stopLessonPlayback();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    importedLessons.set(lessonId(), lines);
+    selectedLine = -1;
+    render('text');
+    feedback.textContent = `Unit ${textUnit} 已加载 ${lines.length} 句，本次浏览内有效。`;
+    autoplayLesson();
+    return;
+  }
   const key = event.target.dataset.write;
   if (!key) return;
   event.preventDefault();
@@ -563,6 +654,8 @@ gallery.addEventListener('click', event => {
 gallery.addEventListener('play', event => {
   if (event.target.tagName !== 'AUDIO') return;
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  autoReadingSentences = false;
+  selectLessonLine(-1);
   area('text').querySelector('.flow-feedback').textContent = '';
 }, true);
 
