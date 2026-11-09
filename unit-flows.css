@@ -155,24 +155,44 @@
   .record-filters button{font-size:10px}
 }
 
-/* The brief nudge follows the Today tab's CTA pulse. */
-.review-guide{animation:review-guide 2.6s cubic-bezier(.4,0,.3,1) infinite}
-.unit:nth-child(2) .review-guide{animation-delay:.23s}
-.unit:nth-child(3) .review-guide{animation-delay:.46s}
-@keyframes review-guide{
-  0%,24%,100%{transform:none}
-  6%{transform:translateX(-1.5px) scale(1.04)}
-  12%{transform:translateX(1.5px) scale(1.04)}
-  18%{transform:translateX(-1px)}
+/* Match the Today task buttons' pulse, sweep, and arrow timing. */
+.task-guide{
+  position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:1px;
+  animation:task-guide-pulse 1.8s cubic-bezier(.4,0,.3,1) infinite
 }
-@media(prefers-reduced-motion:reduce){.review-guide{animation:none}}
+.task-guide.guide-review{
+  --guide-shadow:20 160 140;--guide-glow:43 208 180;
+  background:linear-gradient(180deg,#138670,#0B6F5E);color:#FFF;border-color:#0B6F5E
+}
+.task-guide.guide-lesson{
+  --guide-shadow:232 89 12;--guide-glow:255 122 69;
+  background:linear-gradient(180deg,#C95121,#AC421A);color:#FFF;border-color:#AC421A
+}
+.u-acts .task-guide{padding-inline:2px}
+.task-guide span{position:relative;z-index:2}
+.task-guide .guide-arrow{font-size:8px;animation:task-guide-arrow 1.8s ease-in-out infinite}
+.task-guide::after{
+  content:"";position:absolute;inset:0 auto 0 0;width:24px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgb(255 255 255 / .62),transparent);
+  transform:translateX(-26px);animation:task-guide-sweep 2.4s .5s ease-in-out infinite
+}
+@keyframes task-guide-pulse{
+  0%,100%{transform:scale(1);box-shadow:0 3px 8px rgb(var(--guide-shadow) / .24),0 0 0 0 rgb(var(--guide-glow) / .34)}
+  46%{transform:scale(1.06);box-shadow:0 9px 20px rgb(var(--guide-shadow) / .42),0 0 0 8px rgb(var(--guide-glow) / 0)}
+  72%{transform:scale(1.015)}
+}
+@keyframes task-guide-sweep{0%{transform:translateX(-26px)}34%,100%{transform:translateX(150px)}}
+@keyframes task-guide-arrow{0%,100%{transform:none}34%{transform:translateX(3px)}60%{transform:none}}
+@media(prefers-reduced-motion:reduce){
+  .task-guide,.task-guide .guide-arrow,.task-guide::after{animation:none}
+}
 .home-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;border-radius:11px;background:#F6EAE0;padding:4px}
 .home-preview button{padding:8px 5px;border-radius:7px;color:#705D51;font-size:12px;font-weight:800}
 .home-preview button[aria-pressed=true]{color:#A4471C;background:#FFF;box-shadow:0 1px 5px #4C2E1318}
 .home-preview button:focus-visible,.lesson-import summary:focus-visible{outline:2px solid #0C8270;outline-offset:2px}
-.note .row .sw.l{background:#FFF0E2;color:#954214;border:1px solid #EDC3A7}
-.note .row .sw.r{background:#E7F7F0;color:#126C5B;border:1px solid #A4DBCA}
-.note .row .sw.t{background:#EEF0FF;color:#4E52A0;border:1px solid #CED2F4}
+.note .row .sw{background:#FFFCF8;color:#5D4A3D;border:1px solid #D9C3B2}
+#unit-home[data-guidance=review] .sw.r{background:#0B6F5E;color:#FFF;border-color:#0B6F5E}
+#unit-home[data-guidance=lesson] .sw.t{background:#AC421A;color:#FFF;border-color:#AC421A}
 
 .lesson-heading{padding:2px 1px 0}
 .lesson-heading .flow-eyebrow{margin-bottom:3px}

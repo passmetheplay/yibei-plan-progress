@@ -124,6 +124,12 @@ function renderHome() {
   const mastered = count(units, 'mastered');
   const words = total(units);
   const due = dueUnits();
+  const lessonGuide = due.length ? null : units.reduce((best, unit) => {
+    if (!unit.learned) return best;
+    if (!best || unit.learned / unit.words.length > best.learned / best.words.length) return unit;
+    return best;
+  }, null);
+  stage.dataset.guidance = due.length ? 'review' : lessonGuide ? 'lesson' : '';
   cover.src = originalCover.replace(encodeURIComponent(books[0].name), encodeURIComponent(name));
   stage.querySelector('.book h3').textContent = name;
   stage.querySelector('.book .meta').innerHTML = `人教PEP版 · ${units.length} 单元 · 共 <b>${words}</b> 词`;
@@ -141,6 +147,8 @@ function renderHome() {
   stage.querySelector('#units').innerHTML = units.map(u => {
     const left = u.words.length - u.learned;
     const canReview = !noReviewPreview && u.due > 0;
+    const guideLesson = u === lessonGuide;
+    const guideArrow = '<span class="guide-arrow" aria-hidden="true">›</span>';
     const pct = Math.round(u.learned / u.words.length * 100);
     const color = left === 0 ? '#1FBFA4' : pct === 0 ? '#E9DED4' : '#FF7A45';
     return `<div class="unit">
@@ -151,8 +159,8 @@ function renderHome() {
       </div>
       <div class="u-acts">
         <button type="button" class="b-learn" data-open="learn" data-unit="${u.n}" ${left ? '' : 'disabled'}>${left ? '学词' : '已学完'}</button>
-        <button type="button" class="b-review ${canReview ? 'main review-guide' : ''}" data-open="review" data-unit="${u.n}" ${canReview ? '' : 'disabled'}>复习词</button>
-        <button type="button" class="b-text" data-open="text" data-unit="${u.n}">学课文</button>
+        <button type="button" class="b-review${canReview ? ' task-guide guide-review' : ''}" data-open="review" data-unit="${u.n}" ${canReview ? '' : 'disabled'}><span>复习词</span>${canReview ? guideArrow : ''}</button>
+        <button type="button" class="b-text${guideLesson ? ' task-guide guide-lesson' : ''}" data-open="text" data-unit="${u.n}"><span>学课文</span>${guideLesson ? guideArrow : ''}</button>
       </div>
     </div>`;
   }).join('');

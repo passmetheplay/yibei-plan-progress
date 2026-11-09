@@ -101,10 +101,7 @@
   .u-acts{flex:none;display:flex;flex-direction:row;gap:5px}
   .u-acts button{height:28px;padding:0 9px;border-radius:9px;font-size:9px;font-weight:900;white-space:nowrap;
     display:flex;align-items:center;justify-content:center}
-  .u-acts button{border:1px solid #EADACD}
-  .u-acts .b-learn{background:#FFF0E2;color:#954214;border-color:#EDC3A7}
-  .u-acts .b-text{background:#EEF0FF;color:#4E52A0;border-color:#CED2F4}
-  .u-acts .b-review.main{background:#E7F7F0;color:#126C5B;border-color:#A4DBCA}
+  .u-acts button{background:#FFFCF8;color:#5D4A3D;border:1px solid #D9C3B2}
   .due[hidden]{display:none}
   .u-acts button:disabled{color:#C9BDB3;border-color:#EFE5DB;background:#FBF7F3;box-shadow:none}
 
@@ -132,9 +129,6 @@
   .note .row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F6EDE5}
   .note .row .sw{width:52px;height:22px;border-radius:8px;display:grid;place-items:center;
     font-size:8px;font-weight:900;flex:none}
-  .note .row .sw.l{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff}
-  .note .row .sw.r{background:#fff;border:1.2px solid #FFD2BC;color:var(--orange-deep)}
-  .note .row .sw.t{background:#fff;border:1.2px solid #BFEDE2;color:var(--mint-deep)}
   .note .row .txt{font-size:10.5px;line-height:1.6;color:var(--ink-2)}
   .note .row .txt b{color:var(--ink)}
   .note .foot{margin-top:14px;font-size:10px;color:#A9978B;line-height:1.7}
@@ -144,7 +138,7 @@
     .note{max-width:412px;width:100%}
   }
 </style>
-<link rel="stylesheet" href="unit-flows.css?v=6">
+<link rel="stylesheet" href="unit-flows.css?v=7">
 </head>
 <body>
 
@@ -187,7 +181,7 @@
         <div class="due">
           <span class="dot"></span>
           <div class="t"><b>今天 3 个单元有 12 词到期</b><span>先复习再学新词，记得更牢</span></div>
-          <button class="go review-guide" data-open="due">去复习</button>
+          <button class="go task-guide guide-review" data-open="due"><span>去复习</span><span class="guide-arrow" aria-hidden="true">›</span></button>
         </div>
 
         <div class="sec"><h3>单元<span>6 个</span></h3><button class="entry" data-open="records">学习记录 ›</button></div>
@@ -223,14 +217,15 @@
       <li><b>数据在左</b>：已学 / 掌握 / 未学横排，跟单元名同一列对齐</li>
       <li><b>三个动作在右</b>：学词、复习词、学课文，固定位置不跳动</li>
       <li><b>教材卡</b>：从右上角切换教材，先选年级，再选学期</li>
-      <li><b>复习提醒</b>：有待复习词时显示任务条，待复习的按钮会轻抖动</li>
+      <li><b>有到期词</b>时，任务条和对应单元的复习按钮沿用「今日任务」的呼吸和扫光</li>
+      <li><b>无到期词</b>时，任务条收起，优先引导已学比例最高单元的「学课文」</li>
     </ul>
 
     <h3>按钮状态</h3>
     <div class="rows">
       <div class="row"><span class="sw l">学词</span><span class="txt">学本单元未学的词，学完显示「已学完」</span></div>
       <div class="row"><span class="sw r">复习词</span><span class="txt">只引导有待复习词的单元，其他单元置灰</span></div>
-      <div class="row"><span class="sw t">学课文</span><span class="txt">按教材栏目打开课文，可手点播放</span></div>
+      <div class="row"><span class="sw t">学课文</span><span class="txt">有学习进度时，按已学比例推荐一个单元。比例相同取教材中靠前的单元。</span></div>
     </div>
 
     <div class="foot">圆圈颜色：100% 薄荷绿、其它橙色、0% 浅灰空圈。<br>
@@ -242,6 +237,6 @@
 <main id="flow-gallery" aria-label="单元学入口演示"></main>
 <script src="pep-lessons.js?v=1"></script>
 <script src="word-practice.js?v=2"></script>
-<script src="unit-flows.js?v=6"></script>
+<script src="unit-flows.js?v=7"></script>
 </body>
 </html>
