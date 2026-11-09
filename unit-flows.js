@@ -47,10 +47,6 @@ const flows = {
     '点击底部的确认按钮后才切换。单元列表、进度、到期词和学习记录跟随教材，本次浏览内保留原教材记录。',
     '三、四、六年级各册用单单元示例，五年级上下册用六单元示例。'
   ]],
-  settings: ['学习设置', '从顶部齿轮进入。', [
-    '设置单词点读的重复次数，可选 1 次或 2 次。',
-    '关闭「显示课文译文」后，学课文页默认只显示英文。设置在本次浏览中生效。'
-  ]],
   due: ['到期复习', '从绿色提醒卡「去复习」进入。', [
     '先看到今天到期的单元和词数，再决定按单元复习或一次复习全部。',
     '到期入口只抽取到期词。没有到期词时显示空状态。'
@@ -74,14 +70,15 @@ const flows = {
     '单元内的学习与复习会更新教材词记录。今日按计划单独取词和结算任务进度。'
   ]],
   text: ['学课文', '从对应单元的「学课文」进入。', [
-    '点任意句听读，也可以从第一句连续播放。',
-    '译文可在本页展开或收起。手机图使用为原型编写的主题例句。'
+    '标题下直接显示点读次数和译文开关。点读次数可选 1 次或 2 次，单句和单词点读共用这项设置。',
+    '打开或关闭译文后，句子列表立即更新。切换单元时保留本次浏览的选择。',
+    '点任意句听读，或点「从头播放」按顺序播放整篇，每句一次。手机图使用为原型编写的主题例句。'
   ]],
   test: ['检测', '从底部「检测」进入。', [
     '这里演示选择单元、答一道词义题、查看对错和正确答案。'
   ]],
   profile: ['我的', '从底部「我的」进入。', [
-    '这里演示当前教材、已学与掌握词数，并提供学习记录和学习设置入口。'
+    '这里演示当前教材、已学与掌握词数，并提供学习记录入口。'
   ]]
 };
 
@@ -209,9 +206,6 @@ function renderRecords() {
 
 const renderers = {
   book: renderBookPicker,
-  settings: () => `<div class="flow-panel"><h4>单词发音</h4><label class="flow-row"><span>每次点读</span><select class="flow-select" data-action="repeats"><option value="1" ${settings.repeats === 1 ? 'selected' : ''}>播放 1 次</option><option value="2" ${settings.repeats === 2 ? 'selected' : ''}>播放 2 次</option></select></label></div>
-    <div class="flow-panel"><h4>学课文</h4><label class="flow-row"><span>显示课文译文</span><input type="checkbox" data-action="translations" ${settings.translations ? 'checked' : ''}></label></div>
-    <p class="flow-caption">修改后立即生效。</p>`,
   due: () => {
     const units = dueUnits();
     if (!units.length) return '<div class="flow-panel"><h4>今天没有到期词</h4><p>可以返回单元列表，选一个单元学新词。</p></div>';
@@ -225,8 +219,14 @@ const renderers = {
   text: () => {
     const u = getUnit(textUnit);
     return `<div class="flow-panel"><div class="flow-eyebrow">Unit ${u.n} · 听读示例</div><h4>${u.title}</h4><p>点句子听英文</p></div>
-      ${u.lines.map(([en, cn], i) => `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">${i + 1}. <b>${en}</b>${settings.translations ? `<span>${cn}</span>` : ''}</button>`).join('')}
-      <div class="flow-actions">${action('say-all', '从头播放', 'mint')}${action('toggle-translation', settings.translations ? '收起译文' : '显示译文')}</div>
+      <div class="flow-panel reading-settings">
+        <div class="reading-setting"><span id="reading-repeats-label">点读次数</span><div class="reading-segments" role="radiogroup" aria-labelledby="reading-repeats-label">
+          ${[1, 2].map(repeats => `<label><input type="radio" name="reading-repeats" value="${repeats}" data-action="repeats" ${settings.repeats === repeats ? 'checked' : ''}><span>${repeats} 次</span></label>`).join('')}
+        </div></div>
+        <label class="reading-setting"><span>显示译文</span><span class="reading-switch"><input type="checkbox" role="switch" data-action="translations" ${settings.translations ? 'checked' : ''}><span aria-hidden="true"></span></span></label>
+      </div>
+      ${u.lines.map(([en, cn], i) => `<button type="button" class="flow-line" data-action="say-line" data-line="${i}" aria-pressed="${i === selectedLine}">${i + 1}. <b>${en}</b><span class="line-translation" ${settings.translations ? '' : 'hidden'}>${cn}</span></button>`).join('')}
+      <div class="flow-actions">${action('say-all', '从头播放', 'mint')}</div>
       <div class="flow-feedback" aria-live="polite"></div>`;
   },
   test: () => {
@@ -237,7 +237,7 @@ const renderers = {
       <div class="flow-feedback" aria-live="polite">${testAnswer < 0 ? '' : testAnswer === 1 ? '答对了！' : '正确答案是「' + u.words[0].cn + '」。'}</div>`;
   },
   profile: () => `<div class="flow-panel"><div class="flow-eyebrow">我的教材</div><h4>${book().name} · 人教 PEP</h4><p>已学 ${count(book().units, 'learned')} 词 · 已掌握 ${count(book().units, 'mastered')} 词</p></div>
-    <div class="flow-actions">${open('records', '查看学习记录', '', 'primary')}${open('settings', '学习设置')}</div>`
+    <div class="flow-actions">${open('records', '查看学习记录', '', 'primary')}</div>`
 };
 
 function render(key) {
@@ -377,7 +377,9 @@ gallery.addEventListener('change', event => {
     settings.repeats = Number(value);
   } else if (command === 'translations') {
     settings.translations = event.target.checked;
-    render('text');
+    for (const translation of area('text').querySelectorAll('.line-translation')) {
+      translation.hidden = !settings.translations;
+    }
   }
 });
 
@@ -453,12 +455,8 @@ gallery.addEventListener('click', event => {
       line.setAttribute('aria-pressed', String(Number(line.dataset.line) === selectedLine));
     }
     const lines = getUnit(textUnit).lines;
-    speak(command === 'say-all' ? lines.map(([en]) => en) : [lines[selectedLine][0]], key);
-  } else if (command === 'toggle-translation') {
-    settings.translations = !settings.translations;
-    render('text');
-    render('settings');
-    area('text').querySelector('[data-action="toggle-translation"]').focus();
+    if (command === 'say-all') speak(lines.map(([en]) => en), key);
+    else speak([lines[selectedLine][0]], key, settings.repeats);
   } else if (command === 'answer') {
     testAnswer = Number(button.dataset.index);
     render(key);
